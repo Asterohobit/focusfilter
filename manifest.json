@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "My Social Blocker",
+  "version": "1.0",
+  "description": "Blocks YouTube Shorts and annoying elements.",
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "css": ["styles.css"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

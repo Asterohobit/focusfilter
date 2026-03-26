@@ -1,0 +1,14 @@
+/* Hide the Shorts link in the left sidebar */
+a[title="Shorts"] {
+  display: none !important;
+}
+
+/* Hide the horizontal Shorts shelves on the homepage */
+ytd-rich-shelf-renderer[is-shorts] {
+  display: none !important;
+}
+
+/* Hide Shorts in search results */
+ytd-reel-shelf-renderer {
+  display: none !important;
+}
