@@ -1,3 +1,5 @@
+// To use this file, include it in manifest.json under "content_scripts" with:
+// "js": ["content.js"],
 // A function to find and remove elements
 function removeAnnoyingElements() {
     // Example: Removing anything with the word "Shorts" in its aria-label
