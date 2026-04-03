@@ -1,13 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "My Social Blocker",
-  "version": "1.0",
+  "name": "FocusFilter",
+  "version": "1.0.5",
   "description": "Blocks YouTube Shorts and annoying elements.",
+  "homepage_url": "https://github.com/Asterohobit/focusfilter",
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
       "css": ["styles.css"],
       "run_at": "document_start"
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "@focusfilter",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
 }
