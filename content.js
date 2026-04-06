@@ -24,11 +24,15 @@ const observer = new MutationObserver((mutations) => {
 
 // Start observing the entire body of the webpage for changes
 document.addEventListener('DOMContentLoaded', () => {
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
+    chrome.storage.sync.get({ enabled: true }, (s) => {
+        if (s.enabled) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            removeAnnoyingElements();
+        }
     });
-    removeAnnoyingElements();
 }); 
 
 const STYLE_ID = 'focusfilter-css';
@@ -49,10 +53,15 @@ const CSS = `
 
 function injectCSS() {
     if (document.getElementById(STYLE_ID)) return;
+    const appendTarget = document.head || document.documentElement;
+    if (!appendTarget) {
+        document.addEventListener('DOMContentLoaded', injectCSS, { once: true });
+        return;
+    }
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = CSS;
-    document.head.appendChild(style);
+    appendTarget.appendChild(style);
 }
 
 function removeCSS() {
@@ -68,9 +77,14 @@ chrome.runtime.onMessage.addListener((msg) => {
         observer.observe(document.body, { childList: true, subtree: true });
         removeAnnoyingElements();
     } else {
-        removeCSS();
-        observer.disconnect();
-    }
+    removeCSS();
+    observer.disconnect();
+    // Restore elements hidden by removeAnnoyingElements()
+    document.querySelectorAll('[aria-label*="Shorts"]').forEach(el => {
+        const container = el.closest('ytd-rich-item-renderer');
+        if (container) container.style.display = '';
+    });
+  }
 });
 
 // Boot: apply CSS based on stored state

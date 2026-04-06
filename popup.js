@@ -12,6 +12,10 @@ toggle.addEventListener('change', () => {
   status.textContent = enabled ? 'Enabled' : 'Disabled';
 
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-    if (tab) chrome.tabs.sendMessage(tab.id, { type: 'FF_TOGGLE', enabled }).catch(() => {});
+    if (tab) {
+      chrome.tabs.sendMessage(tab.id, { type: 'FF_TOGGLE', enabled }, () => {
+      void chrome.runtime.lastError;
+        });
+     }
   });
 });
