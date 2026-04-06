@@ -5,6 +5,7 @@ A Firefox/Chrome browser extension designed to block unwanted content.
 ## Features
 
 - Content blocking functionality -> currently only for YouTube Shorts
+- Popup UI with on/off toggle to enable or disable blocking without reloading the page
 
 ## Planned
 
