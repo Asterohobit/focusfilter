@@ -27,3 +27,50 @@ observer.observe(document.body, {
     childList: true,
     subtree: true
 });
+
+const STYLE_ID = 'focusfilter-css';
+
+const CSS = `
+  a[title="Shorts"] { display: none !important; }
+  ytd-rich-shelf-renderer[is-shorts] { display: none !important; }
+  grid-shelf-view-model { display: none !important; }
+  ytd-two-column-browse-results-renderer[page-subtype="home"] { display: none !important; }
+  div[class="ytp-fullscreen-grid-stills-container"] { display: none !important; }
+  div[id="secondary"][class="style-scope ytd-watch-flexy"] { display: none !important; }
+  yt-tab-shape[tab-title="Shorts"] { display: none !important; }
+  ytd-rich-item-renderer[is-shorts-grid] { display: none !important; }
+  ytd-reel-shelf-renderer { display: none !important; }
+  ytm-shorts-lockup-view-model { display: none !important; }
+  ytm-shorts-lockup-view-model-v2 { display: none !important; }
+`;
+
+function injectCSS() {
+    if (document.getElementById(STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+    style.textContent = CSS;
+    document.head.appendChild(style);
+}
+
+function removeCSS() {
+    const el = document.getElementById(STYLE_ID);
+    if (el) el.remove();
+}
+
+// 3. Listen for on/off message from the popup
+chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type !== 'FF_TOGGLE') return;
+    if (msg.enabled) {
+        injectCSS();
+        observer.observe(document.body, { childList: true, subtree: true });
+        removeAnnoyingElements();
+    } else {
+        removeCSS();
+        observer.disconnect();
+    }
+});
+
+// Boot: apply CSS based on stored state
+chrome.storage.sync.get({ enabled: true }, (s) => {
+    if (s.enabled) injectCSS();
+});
