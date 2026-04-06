@@ -11,11 +11,11 @@
 
   "permissions": ["storage", "activeTab"],
   "content_scripts": [
-    {
-      "matches": ["*://*.youtube.com/*"],
-      "css": ["styles.css"],
-      "run_at": "document_start"
-    }
+  {
+    "matches": ["*://*.youtube.com/*"],
+    "js": ["content.js"],
+    "run_at": "document_start"
+  } 
   ],
   "browser_specific_settings": {
     "gecko": {

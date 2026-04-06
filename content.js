@@ -23,10 +23,13 @@ const observer = new MutationObserver((mutations) => {
 });
 
 // Start observing the entire body of the webpage for changes
-observer.observe(document.body, {
-    childList: true,
-    subtree: true
-});
+document.addEventListener('DOMContentLoaded', () => {
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    removeAnnoyingElements();
+}); 
 
 const STYLE_ID = 'focusfilter-css';
 
