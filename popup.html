@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FocusFilter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 320px;
+      background: #0f0f0f;
+      color: #f1f1f1;
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      padding: 16px;
+      user-select: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .logo {
+      width: 24px; height: 24px;
+      background: #224422;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: #fff;
+    }
+    .title { font-weight: 600; font-size: 14px; }
+
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8a8a8a;
+      margin-bottom: 8px;
+    }
+
+    .rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      border: 1px solid #2e2e2e;
+    }
+    .label { font-size: 13px; }
+    .status { font-size: 11px; color: #717171; margin-top: 2px; }
+    .section { margin-top: 14px; }
+
+    /* toggle */
+    .tog { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+    .tog input { display: none; }
+    .track {
+      position: absolute; inset: 0;
+      background: #3a3a3a;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .track::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 14px; height: 14px;
+      background: #888;
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .tog input:checked + .track { background: #2ba640; }
+    .tog input:checked + .track::after { background: #fff; transform: translateX(16px); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="icons/focusfilter-48.png" alt="FocusFilter logo" class="logo" />
+    <span class="title">FocusFilter</span>
+  </div>
+
+  <div class="section-title">Global</div>
+  <div class="rows">
+    <div class="row">
+      <div>
+        <div class="label">Enable FocusFilter</div>
+        <div class="status" id="master-status">Enabled</div>
+      </div>
+      <label class="tog">
+        <input type="checkbox" id="master-toggle" />
+        <div class="track"></div>
+      </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">YouTube Rules</div>
+    <div class="rows" id="feature-rows"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

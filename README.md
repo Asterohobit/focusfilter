@@ -4,17 +4,24 @@ A Firefox/Chrome browser extension designed to block unwanted content.
 
 ## Features
 
-- Content blocking functionality -> currently only for YouTube Shorts
+- Master toggle plus independent feature toggles in the popup
+- Key-based YouTube feature controls:
+  - `YT_SHORTS`
+  - `YT_VIDEO_SIDEBAR`
+  - `YT_HOMESCREEN`
+- Rule-to-key mapping with multi-key support (OR semantics)
+- Hybrid blocking model:
+  - Static scoped CSS rules in `styles.css`
+  - Minimal JS runtime for dynamic edge cases
 
 ## Planned
 
-- Extension UI
 - Support for additional websites
 
 ## Installation
 
 1. Clone the repository
-2. Load the extension in your browser
+2. Load the extension in your browser (on Firefox via `about:debugging#/runtime/firefox`)
 3. Configure blocking preferences
 
 ## Contributing

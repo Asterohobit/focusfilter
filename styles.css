@@ -1,60 +1,67 @@
 /* Hide the Shorts link in the left sidebar */
+html[data-ff-global="1"][data-ff-rule-yt-shorts-nav="1"]
 a[title="Shorts"] {
-  display: none !important;
+    display: none !important;
 }
 
 /* Hide the horizontal Shorts shelves on the homepage */
+html[data-ff-global="1"][data-ff-rule-yt-shorts-home-shelf="1"]
 ytd-rich-shelf-renderer[is-shorts] {
-  display: none !important;
+    display: none !important;
 }
 
 /* Hide the horizontal Shorts shelves on the search results page */
+html[data-ff-global="1"][data-ff-rule-yt-shorts-search-shelf="1"]
 grid-shelf-view-model {
     display: none !important;
 }
 
 /* Hide videos on the homepage */
+html[data-ff-global="1"][data-ff-rule-yt-home-feed="1"]
 ytd-two-column-browse-results-renderer[page-subtype="home"] {
     display: none !important;
 }
 
 /* Hide video recommendations on video end screen */
+html[data-ff-global="1"][data-ff-rule-yt-watch-endscreen="1"]
 div[class="ytp-fullscreen-grid-stills-container"] {
     display: none !important;
 }
 
-/* Hide recommended videos on the video page sidebar */
-/* ytd-item-section-renderer[class="style-scope ytd-watch-next-secondary-results-renderer"] {
-    display: none !important;
-} */
-
 /* Hide the entire sidebar on the video page */
+html[data-ff-global="1"][data-ff-rule-yt-video-sidebar="1"]
 div[id="secondary"][class="style-scope ytd-watch-flexy"] {
     display: none !important;
 }
 
 /* Hide the Shorts tab on the channel page */
+html[data-ff-global="1"][data-ff-rule-yt-channel-shorts-tab="1"]
 yt-tab-shape[tab-title="Shorts"] {
     display: none !important;
 }
 
 /* Hide the Shorts in the Shorts tab on the channel page
    only relevant if you type the Shorts tab URL directly, since the tab is hidden */
+html[data-ff-global="1"][data-ff-rule-yt-channel-shorts-grid="1"]
 ytd-rich-item-renderer[is-shorts-grid] {
     display: none !important;
 }
 
 /* Hide Shorts shelves on the channel page */
+html[data-ff-global="1"][data-ff-rule-yt-channel-shorts-shelf="1"]
 ytd-reel-shelf-renderer {
     display: none !important;
 }
 
-/* Hide Shorts in the 'For you' section on the channel page */
-ytm-shorts-lockup-view-model {
+/* Hide Shorts in the 'For you' section on the channel page, also the wrapper */
+html[data-ff-global="1"][data-ff-rule-yt-mobile-shorts-lockup="1"]
+ytm-shorts-lockup-view-model,
+html[data-ff-global="1"][data-ff-rule-yt-mobile-shorts-lockup="1"]
+ytm-shorts-lockup-view-model-v2 {
     display: none !important;
 }
 
-/* also the wrapper */
-ytm-shorts-lockup-view-model-v2 {
+html[data-ff-global="1"][data-ff-rule-yt-shorts-nav="1"]
+div[class="reel-video-in-sequence-new style-scope ytd-shorts"][id="2"] {
     display: none !important;
 }
