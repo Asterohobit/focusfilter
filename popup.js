@@ -27,6 +27,8 @@ const FEATURE_DEFS = [
 
 const defaults = {
   globalEnabled: true,
+  customRulesEnabled: true,
+  customRulesText: '',
   features: FEATURE_DEFS.reduce((acc, feature) => {
     acc[feature.id] = feature.defaultEnabled;
     return acc;
@@ -34,19 +36,43 @@ const defaults = {
 };
 const SETTINGS_VERSION_KEY = 'settingsVersion';
 const CURRENT_SETTINGS_VERSION = chrome.runtime.getManifest().version;
+const MAX_CUSTOM_RULES_TEXT_LENGTH = 1000;
 
 const masterToggle = document.getElementById('master-toggle');
 const masterStatus = document.getElementById('master-status');
 const featureRows = document.getElementById('feature-rows');
+const customRulesToggle = document.getElementById('custom-rules-toggle');
+const customRulesStatus = document.getElementById('custom-rules-status');
+const customRulesInput = document.getElementById('custom-rules-input');
+const customRulesUpdate = document.getElementById('custom-rules-update');
 
 let state = {
   globalEnabled: defaults.globalEnabled,
+  customRulesEnabled: defaults.customRulesEnabled,
+  customRulesText: defaults.customRulesText,
   features: { ...defaults.features }
 };
+
+function clampCustomRulesText(text) {
+  return typeof text === 'string' ? text.slice(0, MAX_CUSTOM_RULES_TEXT_LENGTH) : '';
+}
+
+function countCustomRules(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .length;
+}
 
 function normalizeIncomingState(incoming) {
   const next = {
     globalEnabled: typeof incoming.globalEnabled === 'boolean' ? incoming.globalEnabled : defaults.globalEnabled,
+    customRulesEnabled:
+      typeof incoming.customRulesEnabled === 'boolean' ? incoming.customRulesEnabled : defaults.customRulesEnabled,
+    customRulesText: clampCustomRulesText(
+      typeof incoming.customRulesText === 'string' ? incoming.customRulesText : defaults.customRulesText
+    ),
     features: { ...defaults.features }
   };
 
@@ -61,6 +87,7 @@ function normalizeIncomingState(incoming) {
 }
 
 function saveAndBroadcast() {
+  state.customRulesText = clampCustomRulesText(state.customRulesText);
   chrome.storage.sync.set({ ...state, [SETTINGS_VERSION_KEY]: CURRENT_SETTINGS_VERSION }, () => {
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
       if (!tab || typeof tab.id !== 'number') return;
@@ -122,6 +149,34 @@ function renderState() {
   masterToggle.checked = state.globalEnabled;
   masterStatus.textContent = state.globalEnabled ? 'Enabled' : 'Disabled';
 
+  if (customRulesToggle) {
+    customRulesToggle.checked = state.customRulesEnabled;
+    customRulesToggle.disabled = !state.globalEnabled;
+  }
+
+  if (customRulesStatus) {
+    if (!state.globalEnabled) {
+      customRulesStatus.textContent = 'Disabled by global switch';
+    } else if (!state.customRulesEnabled) {
+      customRulesStatus.textContent = 'Disabled';
+    } else {
+      const ruleCount = countCustomRules(state.customRulesText);
+      customRulesStatus.textContent = ruleCount > 0 ? `${ruleCount} selector${ruleCount === 1 ? '' : 's'} saved` : 'Enabled';
+    }
+  }
+
+  if (customRulesInput && document.activeElement !== customRulesInput) {
+    customRulesInput.value = state.customRulesText;
+  }
+
+  if (customRulesInput) {
+    customRulesInput.disabled = !state.globalEnabled;
+  }
+
+  if (customRulesUpdate) {
+    customRulesUpdate.disabled = !state.globalEnabled;
+  }
+
   FEATURE_DEFS.forEach((feature) => {
     const input = document.getElementById(`toggle-${feature.id}`);
     const status = document.getElementById(`status-${feature.id}`);
@@ -139,18 +194,27 @@ function loadStateWithVersionReset(callback) {
   chrome.storage.sync.get(
     {
       globalEnabled: defaults.globalEnabled,
+      customRulesEnabled: defaults.customRulesEnabled,
+      customRulesText: defaults.customRulesText,
       features: defaults.features,
       [SETTINGS_VERSION_KEY]: ''
     },
     (stored) => {
       const storedVersion = typeof stored[SETTINGS_VERSION_KEY] === 'string' ? stored[SETTINGS_VERSION_KEY] : '';
       if (storedVersion === CURRENT_SETTINGS_VERSION) {
-        callback({ globalEnabled: stored.globalEnabled, features: stored.features });
+        callback({
+          globalEnabled: stored.globalEnabled,
+          customRulesEnabled: stored.customRulesEnabled,
+          customRulesText: stored.customRulesText,
+          features: stored.features
+        });
         return;
       }
 
       const resetState = {
         globalEnabled: defaults.globalEnabled,
+        customRulesEnabled: defaults.customRulesEnabled,
+        customRulesText: defaults.customRulesText,
         features: { ...defaults.features },
         [SETTINGS_VERSION_KEY]: CURRENT_SETTINGS_VERSION
       };
@@ -167,6 +231,24 @@ masterToggle.addEventListener('change', () => {
   renderState();
   saveAndBroadcast();
 });
+
+if (customRulesToggle) {
+  customRulesToggle.addEventListener('change', () => {
+    state.customRulesEnabled = customRulesToggle.checked;
+    renderState();
+    saveAndBroadcast();
+  });
+}
+
+if (customRulesUpdate) {
+  customRulesUpdate.addEventListener('click', () => {
+    if (customRulesInput) {
+      state.customRulesText = clampCustomRulesText(customRulesInput.value);
+    }
+    renderState();
+    saveAndBroadcast();
+  });
+}
 
 renderFeatureRows();
 loadStateWithVersionReset((storedState) => {

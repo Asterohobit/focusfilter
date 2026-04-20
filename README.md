@@ -1,6 +1,6 @@
 # Blocker Extension
 
-A Firefox/Chrome browser extension designed to block unwanted content.
+A Firefox/Chrome browser extension designed to block unwanted components from YouTube.
 
 ## Features
 
@@ -10,10 +10,17 @@ A Firefox/Chrome browser extension designed to block unwanted content.
   - `YT_VIDEO_SIDEBAR`
   - `YT_HOMESCREEN`
   - `YT_VIDEO_ENDCARD`
-- Rule-to-key mapping with multi-key support (OR semantics)
-- Hybrid blocking model:
-  - Static scoped CSS rules in `styles.css`
-  - Minimal JS runtime for dynamic edge cases
+- Custom CSS selector rules with an enable switch and multiline editor
+
+## Custom Rules
+
+The popup includes a Custom rules section where you can enter one CSS selector per line and press Update to hide matching elements.
+
+Example to hide the YouTube logo:
+
+```css
+ytd-topbar-logo-renderer[id="logo"]
+```
 
 ## Planned
 
