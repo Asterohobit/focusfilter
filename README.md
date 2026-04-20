@@ -9,6 +9,7 @@ A Firefox/Chrome browser extension designed to block unwanted content.
   - `YT_SHORTS`
   - `YT_VIDEO_SIDEBAR`
   - `YT_HOMESCREEN`
+  - `YT_VIDEO_ENDCARD`
 - Rule-to-key mapping with multi-key support (OR semantics)
 - Hybrid blocking model:
   - Static scoped CSS rules in `styles.css`

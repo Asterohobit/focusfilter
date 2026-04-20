@@ -1,15 +1,18 @@
 const FEATURE_DEFS = [
     { id: 'YT_SHORTS', defaultEnabled: true },
     { id: 'YT_VIDEO_SIDEBAR', defaultEnabled: true },
-    { id: 'YT_HOMESCREEN', defaultEnabled: true }
+    { id: 'YT_HOMESCREEN', defaultEnabled: true },
+    { id: 'YT_VIDEO_ENDCARD', defaultEnabled: true }
 ];
 
 const RULE_DEFS = [
     { id: 'yt-shorts-nav', keys: ['YT_SHORTS'], mode: 'any' },
     { id: 'yt-shorts-home-shelf', keys: ['YT_SHORTS', 'YT_HOMESCREEN'], mode: 'any' },
-    { id: 'yt-shorts-search-shelf', keys: ['YT_SHORTS', 'YT_HOMESCREEN'], mode: 'any' },
+    { id: 'yt-shorts-search-shelf', keys: ['YT_SHORTS'], mode: 'any' },
+    { id: 'yt-shorts-search-tab', keys: ['YT_SHORTS'], mode: 'any' },
+    { id: 'yt-search-filter-shorts', keys: ['YT_SHORTS'], mode: 'any' },
     { id: 'yt-home-feed', keys: ['YT_HOMESCREEN'], mode: 'any' },
-    { id: 'yt-watch-endscreen', keys: ['YT_HOMESCREEN'], mode: 'any' },
+    { id: 'yt-watch-endscreen', keys: ['YT_VIDEO_ENDCARD'], mode: 'any' },
     { id: 'yt-video-sidebar', keys: ['YT_VIDEO_SIDEBAR'], mode: 'any' },
     { id: 'yt-channel-shorts-tab', keys: ['YT_SHORTS'], mode: 'any' },
     { id: 'yt-channel-shorts-grid', keys: ['YT_SHORTS'], mode: 'any' },
@@ -83,6 +86,32 @@ function hideShortsByAriaLabel() {
     });
 }
 
+// Hides the Shorts search chip by checking the chip label text instead of the tag name.
+function hideShortsChipByLabel() {
+    document.querySelectorAll('yt-chip-cloud-chip-renderer').forEach((chip) => {
+        if (chip.hasAttribute(INLINE_HIDE_ATTR)) return;
+
+        const label = chip.textContent ? chip.textContent.trim() : '';
+        if (label !== 'Shorts') return;
+
+        chip.setAttribute(INLINE_HIDE_ATTR, '1');
+        chip.style.display = 'none';
+    });
+}
+
+// Hides the Shorts search filter chip by matching the visible label text.
+function hideSearchFilterShortsByLabel() {
+    document.querySelectorAll('ytd-search-filter-renderer').forEach((filter) => {
+        if (filter.hasAttribute(INLINE_HIDE_ATTR)) return;
+
+        const label = filter.textContent ? filter.textContent.trim() : '';
+        if (label !== 'Shorts') return;
+
+        filter.setAttribute(INLINE_HIDE_ATTR, '1');
+        filter.style.display = 'none';
+    });
+}
+
 function restoreInlineHiddenElements() {
     document.querySelectorAll(`[${INLINE_HIDE_ATTR}]`).forEach((el) => {
         el.removeAttribute(INLINE_HIDE_ATTR);
@@ -97,6 +126,8 @@ function shouldRunDynamicShortsCleanup() {
 function applyDynamicRules() {
     if (shouldRunDynamicShortsCleanup()) {
         hideShortsByAriaLabel();
+        hideShortsChipByLabel();
+        hideSearchFilterShortsByLabel();
         return;
     }
     restoreInlineHiddenElements();
