@@ -16,6 +16,12 @@ const FEATURE_DEFS = [
     label: 'Hide home recommendations',
     description: 'Home feed and end-screen recommendation cards',
     defaultEnabled: true
+  },
+  {
+    id: 'YT_VIDEO_ENDCARD',
+    label: 'Hide recommendations on video end screen',
+    description: 'Recommended videos shown at the end of a video',
+    defaultEnabled: false
   }
 ];
 
