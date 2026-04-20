@@ -36,6 +36,7 @@ const defaults = {
 };
 const SETTINGS_VERSION_KEY = 'settingsVersion';
 const CURRENT_SETTINGS_VERSION = chrome.runtime.getManifest().version;
+const MAX_CUSTOM_RULES_TEXT_LENGTH = 1000;
 
 const masterToggle = document.getElementById('master-toggle');
 const masterStatus = document.getElementById('master-status');
@@ -52,6 +53,10 @@ let state = {
   features: { ...defaults.features }
 };
 
+function clampCustomRulesText(text) {
+  return typeof text === 'string' ? text.slice(0, MAX_CUSTOM_RULES_TEXT_LENGTH) : '';
+}
+
 function countCustomRules(text) {
   return text
     .split(/\r?\n/)
@@ -65,7 +70,9 @@ function normalizeIncomingState(incoming) {
     globalEnabled: typeof incoming.globalEnabled === 'boolean' ? incoming.globalEnabled : defaults.globalEnabled,
     customRulesEnabled:
       typeof incoming.customRulesEnabled === 'boolean' ? incoming.customRulesEnabled : defaults.customRulesEnabled,
-    customRulesText: typeof incoming.customRulesText === 'string' ? incoming.customRulesText : defaults.customRulesText,
+    customRulesText: clampCustomRulesText(
+      typeof incoming.customRulesText === 'string' ? incoming.customRulesText : defaults.customRulesText
+    ),
     features: { ...defaults.features }
   };
 
@@ -80,6 +87,7 @@ function normalizeIncomingState(incoming) {
 }
 
 function saveAndBroadcast() {
+  state.customRulesText = clampCustomRulesText(state.customRulesText);
   chrome.storage.sync.set({ ...state, [SETTINGS_VERSION_KEY]: CURRENT_SETTINGS_VERSION }, () => {
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
       if (!tab || typeof tab.id !== 'number') return;
@@ -235,7 +243,7 @@ if (customRulesToggle) {
 if (customRulesUpdate) {
   customRulesUpdate.addEventListener('click', () => {
     if (customRulesInput) {
-      state.customRulesText = customRulesInput.value;
+      state.customRulesText = clampCustomRulesText(customRulesInput.value);
     }
     renderState();
     saveAndBroadcast();
