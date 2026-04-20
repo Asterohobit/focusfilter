@@ -21,10 +21,13 @@ const RULE_DEFS = [
 ];
 
 const INLINE_HIDE_ATTR = 'data-ff-inline-hidden';
+const CUSTOM_RULES_STYLE_ID = 'ff-custom-rules-style';
 const SETTINGS_VERSION_KEY = 'settingsVersion';
 const CURRENT_SETTINGS_VERSION = chrome.runtime.getManifest().version;
 const defaults = {
     globalEnabled: true,
+    customRulesEnabled: true,
+    customRulesText: '',
     features: FEATURE_DEFS.reduce((acc, feature) => {
         acc[feature.id] = feature.defaultEnabled;
         return acc;
@@ -33,6 +36,8 @@ const defaults = {
 
 let state = {
     globalEnabled: defaults.globalEnabled,
+    customRulesEnabled: defaults.customRulesEnabled,
+    customRulesText: defaults.customRulesText,
     features: { ...defaults.features }
 };
 let initialized = false;
@@ -74,6 +79,42 @@ function applyRuleAttributes() {
     RULE_DEFS.forEach((rule) => {
         setRootAttr(`data-ff-rule-${rule.id}`, evaluateRule(rule));
     });
+}
+
+function getCustomRuleSelectors(text) {
+    return text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .filter((selector) => {
+            try {
+                document.querySelector(selector);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        });
+}
+
+function removeCustomRulesStyle() {
+    const existingStyle = document.getElementById(CUSTOM_RULES_STYLE_ID);
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+}
+
+function applyCustomRulesStyle() {
+    removeCustomRulesStyle();
+
+    if (!state.globalEnabled || !state.customRulesEnabled) return;
+
+    const selectors = getCustomRuleSelectors(state.customRulesText);
+    if (!selectors.length) return;
+
+    const style = document.createElement('style');
+    style.id = CUSTOM_RULES_STYLE_ID;
+    style.textContent = selectors.map((selector) => `${selector} { display: none !important; }`).join('\n');
+    (document.head || document.documentElement).appendChild(style);
 }
 
 // Hides Shorts elements that may not be covered by CSS rules, based on their aria-label. This is necessary because some Shorts elements are rendered in a way that makes them difficult to target with CSS alone. By using an inline style, we can ensure they are hidden regardless of their position in the DOM or how they are rendered.
@@ -149,6 +190,9 @@ function updateObserverState() {
 function normalizeIncomingState(incoming) {
     const next = {
         globalEnabled: typeof incoming.globalEnabled === 'boolean' ? incoming.globalEnabled : defaults.globalEnabled,
+        customRulesEnabled:
+            typeof incoming.customRulesEnabled === 'boolean' ? incoming.customRulesEnabled : defaults.customRulesEnabled,
+        customRulesText: typeof incoming.customRulesText === 'string' ? incoming.customRulesText : defaults.customRulesText,
         features: { ...defaults.features }
     };
 
@@ -165,6 +209,7 @@ function normalizeIncomingState(incoming) {
 function applyState(nextState) {
     state = normalizeIncomingState(nextState);
     applyRuleAttributes();
+    applyCustomRulesStyle();
     applyDynamicRules();
     if (document.body) {
         updateObserverState();
@@ -175,18 +220,27 @@ function loadStateWithVersionReset(callback) {
     chrome.storage.sync.get(
         {
             globalEnabled: defaults.globalEnabled,
+            customRulesEnabled: defaults.customRulesEnabled,
+            customRulesText: defaults.customRulesText,
             features: defaults.features,
             [SETTINGS_VERSION_KEY]: ''
         },
         (stored) => {
             const storedVersion = typeof stored[SETTINGS_VERSION_KEY] === 'string' ? stored[SETTINGS_VERSION_KEY] : '';
             if (storedVersion === CURRENT_SETTINGS_VERSION) {
-                callback({ globalEnabled: stored.globalEnabled, features: stored.features });
+                callback({
+                    globalEnabled: stored.globalEnabled,
+                    customRulesEnabled: stored.customRulesEnabled,
+                    customRulesText: stored.customRulesText,
+                    features: stored.features
+                });
                 return;
             }
 
             const resetState = {
                 globalEnabled: defaults.globalEnabled,
+                customRulesEnabled: defaults.customRulesEnabled,
+                customRulesText: defaults.customRulesText,
                 features: { ...defaults.features },
                 [SETTINGS_VERSION_KEY]: CURRENT_SETTINGS_VERSION
             };
@@ -220,12 +274,24 @@ document.addEventListener('yt-navigate-finish', () => {
 
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
-    const hasRelevantChange = Object.prototype.hasOwnProperty.call(changes, 'globalEnabled') || Object.prototype.hasOwnProperty.call(changes, 'features');
+    const hasRelevantChange =
+        Object.prototype.hasOwnProperty.call(changes, 'globalEnabled') ||
+        Object.prototype.hasOwnProperty.call(changes, 'customRulesEnabled') ||
+        Object.prototype.hasOwnProperty.call(changes, 'customRulesText') ||
+        Object.prototype.hasOwnProperty.call(changes, 'features');
     if (!hasRelevantChange) return;
 
-    chrome.storage.sync.get({ globalEnabled: defaults.globalEnabled, features: defaults.features }, (storedState) => {
-        applyState(storedState);
-    });
+    chrome.storage.sync.get(
+        {
+            globalEnabled: defaults.globalEnabled,
+            customRulesEnabled: defaults.customRulesEnabled,
+            customRulesText: defaults.customRulesText,
+            features: defaults.features
+        },
+        (storedState) => {
+            applyState(storedState);
+        }
+    );
 });
 
 chrome.runtime.onMessage.addListener((msg) => {

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FocusFilter",
-  "version": "1.1.1",
-  "description": "Blocks YouTube Shorts and annoying elements.",
+  "version": "1.2.0",
+  "description": "Block annoying elements like YouTube Shorts.",
   "homepage_url": "https://github.com/Asterohobit/focusfilter",
 
   "icons": {
