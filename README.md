@@ -1,15 +1,18 @@
 # Blocker Extension
 
-A Firefox/Chrome browser extension designed to block unwanted components from YouTube.
+A Firefox/Chrome browser extension designed to block unwanted components from YouTube and Instagram.
 
 ## Features
 
 - Master toggle plus independent feature toggles in the popup
+- Website selector that switches between YouTube and Instagram rules
 - Key-based YouTube feature controls:
   - `YT_SHORTS`
   - `YT_VIDEO_SIDEBAR`
   - `YT_HOMESCREEN`
   - `YT_VIDEO_ENDCARD`
+- Instagram feature control:
+  - `INSTA_HIDE_ADS_HOMEFEED`
 - Custom CSS selector rules with an enable switch and multiline editor
 
 ## Custom Rules
@@ -21,10 +24,6 @@ Example to hide the YouTube logo:
 ```css
 ytd-topbar-logo-renderer[id="logo"]
 ```
-
-## Planned
-
-- Support for additional websites
 
 ## Installation
 

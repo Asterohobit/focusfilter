@@ -1,36 +1,61 @@
-const FEATURE_DEFS = [
-    { id: 'YT_SHORTS', defaultEnabled: true },
-    { id: 'YT_VIDEO_SIDEBAR', defaultEnabled: true },
-    { id: 'YT_HOMESCREEN', defaultEnabled: true },
-    { id: 'YT_VIDEO_ENDCARD', defaultEnabled: true }
-];
+const SITE_DEFS = {
+    youtube: {
+        featureDefs: [
+            { id: 'YT_SHORTS', defaultEnabled: true },
+            { id: 'YT_VIDEO_SIDEBAR', defaultEnabled: true },
+            { id: 'YT_HOMESCREEN', defaultEnabled: true },
+            { id: 'YT_VIDEO_ENDCARD', defaultEnabled: true },
+            { id: 'GRAYSCALE', defaultEnabled: false }
+        ],
+        ruleDefs: [
+            { id: 'yt-shorts-nav', keys: ['YT_SHORTS'], mode: 'any' },
+            { id: 'yt-shorts-home-shelf', keys: ['YT_SHORTS', 'YT_HOMESCREEN'], mode: 'any' },
+            { id: 'yt-shorts-search-shelf', keys: ['YT_SHORTS'], mode: 'any' },
+            { id: 'yt-shorts-search-tab', keys: ['YT_SHORTS'], mode: 'any' },
+            { id: 'yt-search-filter-shorts', keys: ['YT_SHORTS'], mode: 'any' },
+            { id: 'yt-home-feed', keys: ['YT_HOMESCREEN'], mode: 'any' },
+            { id: 'yt-watch-endscreen', keys: ['YT_VIDEO_ENDCARD'], mode: 'any' },
+            { id: 'yt-video-sidebar', keys: ['YT_VIDEO_SIDEBAR'], mode: 'any' },
+            { id: 'yt-channel-shorts-tab', keys: ['YT_SHORTS'], mode: 'any' },
+            { id: 'yt-channel-shorts-grid', keys: ['YT_SHORTS'], mode: 'any' },
+            { id: 'yt-channel-shorts-shelf', keys: ['YT_SHORTS'], mode: 'any' },
+            { id: 'yt-mobile-shorts-lockup', keys: ['YT_SHORTS'], mode: 'any' }
+        ]
+    },
+    instagram: {
+        featureDefs: [
+            { id: 'INSTA_HIDE_ADS_HOMEFEED', defaultEnabled: true },
+            { id: 'INSTA_HIDE_REELS_BUTTON', defaultEnabled: true },
+            { id: 'INSTA_HIDE_EXPLORE_BUTTON', defaultEnabled: true },
+            { id: 'GRAYSCALE', defaultEnabled: false }
+        ],
+        ruleDefs: [
+            { id: 'insta-hide-ads-homefeed', keys: ['INSTA_HIDE_ADS_HOMEFEED'], mode: 'any' },
+            { id: 'insta-hide-reels-button', keys: ['INSTA_HIDE_REELS_BUTTON'], mode: 'any' },
+            { id: 'insta-hide-explore-button', keys: ['INSTA_HIDE_EXPLORE_BUTTON'], mode: 'any' }
+        ]
+    }
+};
 
-const RULE_DEFS = [
-    { id: 'yt-shorts-nav', keys: ['YT_SHORTS'], mode: 'any' },
-    { id: 'yt-shorts-home-shelf', keys: ['YT_SHORTS', 'YT_HOMESCREEN'], mode: 'any' },
-    { id: 'yt-shorts-search-shelf', keys: ['YT_SHORTS'], mode: 'any' },
-    { id: 'yt-shorts-search-tab', keys: ['YT_SHORTS'], mode: 'any' },
-    { id: 'yt-search-filter-shorts', keys: ['YT_SHORTS'], mode: 'any' },
-    { id: 'yt-home-feed', keys: ['YT_HOMESCREEN'], mode: 'any' },
-    { id: 'yt-watch-endscreen', keys: ['YT_VIDEO_ENDCARD'], mode: 'any' },
-    { id: 'yt-video-sidebar', keys: ['YT_VIDEO_SIDEBAR'], mode: 'any' },
-    { id: 'yt-channel-shorts-tab', keys: ['YT_SHORTS'], mode: 'any' },
-    { id: 'yt-channel-shorts-grid', keys: ['YT_SHORTS'], mode: 'any' },
-    { id: 'yt-channel-shorts-shelf', keys: ['YT_SHORTS'], mode: 'any' },
-    { id: 'yt-mobile-shorts-lockup', keys: ['YT_SHORTS'], mode: 'any' }
-];
-
+const SITE_DEFAULT_ID = 'youtube';
 const INLINE_HIDE_ATTR = 'data-ff-inline-hidden';
 const CUSTOM_RULES_STYLE_ID = 'ff-custom-rules-style';
+const GRAYSCALE_STYLE_ID = 'ff-grayscale-style';
 const SETTINGS_VERSION_KEY = 'settingsVersion';
 const CURRENT_SETTINGS_VERSION = chrome.runtime.getManifest().version;
 const defaults = {
     globalEnabled: true,
     customRulesEnabled: true,
     customRulesText: '',
-    features: FEATURE_DEFS.reduce((acc, feature) => {
-        acc[feature.id] = feature.defaultEnabled;
-        return acc;
+    sites: Object.keys(SITE_DEFS).reduce((siteAcc, siteId) => {
+        const site = SITE_DEFS[siteId];
+        siteAcc[siteId] = {
+            features: site.featureDefs.reduce((featureAcc, feature) => {
+                featureAcc[feature.id] = feature.defaultEnabled;
+                return featureAcc;
+            }, {})
+        };
+        return siteAcc;
     }, {})
 };
 
@@ -38,19 +63,50 @@ let state = {
     globalEnabled: defaults.globalEnabled,
     customRulesEnabled: defaults.customRulesEnabled,
     customRulesText: defaults.customRulesText,
-    features: { ...defaults.features }
+    sites: cloneSites(defaults.sites)
 };
 let initialized = false;
+let currentSiteId = SITE_DEFAULT_ID;
+
+function cloneSites(sourceSites) {
+    return Object.keys(SITE_DEFS).reduce((siteAcc, siteId) => {
+        const site = SITE_DEFS[siteId];
+        const sourceSite = sourceSites && sourceSites[siteId] ? sourceSites[siteId] : {};
+        const sourceFeatures = sourceSite.features || {};
+
+        siteAcc[siteId] = {
+            features: site.featureDefs.reduce((featureAcc, feature) => {
+                featureAcc[feature.id] = typeof sourceFeatures[feature.id] === 'boolean' ? sourceFeatures[feature.id] : feature.defaultEnabled;
+                return featureAcc;
+            }, {})
+        };
+
+        return siteAcc;
+    }, {});
+}
+
+function isFeatureEnabled(featureKey) {
+    const site = state.sites[currentSiteId] || defaults.sites[SITE_DEFAULT_ID];
+    return Boolean(site.features[featureKey]);
+}
+
+function getCurrentSiteId() {
+    const hostname = window.location.hostname.toLowerCase();
+    if (hostname === 'instagram.com' || hostname.endsWith('.instagram.com')) {
+        return 'instagram';
+    }
+    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
+        return 'youtube';
+    }
+
+    return SITE_DEFAULT_ID;
+}
 
 const observer = new MutationObserver(() => {
     applyDynamicRules();
 });
 
 let isObserverRunning = false;
-
-function isFeatureEnabled(featureKey) {
-    return Boolean(state.features[featureKey]);
-}
 
 // Evaluates a rule based on its keys and mode. For 'all' mode, all keys must be enabled. For 'any' mode, at least one key must be enabled.
 function evaluateRule(rule) {
@@ -72,11 +128,13 @@ function setRootAttr(name, enabled) {
 function applyRuleAttributes() {
     setRootAttr('data-ff-global', state.globalEnabled);
 
-    FEATURE_DEFS.forEach((feature) => {
+    const site = SITE_DEFS[currentSiteId] || SITE_DEFS[SITE_DEFAULT_ID];
+
+    site.featureDefs.forEach((feature) => {
         setRootAttr(`data-ff-feature-${feature.id.toLowerCase()}`, state.globalEnabled && isFeatureEnabled(feature.id));
     });
 
-    RULE_DEFS.forEach((rule) => {
+    site.ruleDefs.forEach((rule) => {
         setRootAttr(`data-ff-rule-${rule.id}`, evaluateRule(rule));
     });
 }
@@ -114,6 +172,28 @@ function applyCustomRulesStyle() {
     const style = document.createElement('style');
     style.id = CUSTOM_RULES_STYLE_ID;
     style.textContent = selectors.map((selector) => `${selector} { display: none !important; }`).join('\n');
+    (document.head || document.documentElement).appendChild(style);
+}
+
+function removeGrayscaleStyle() {
+    const existing = document.getElementById(GRAYSCALE_STYLE_ID);
+    if (existing) {
+        existing.remove();
+    }
+}
+
+function applyGrayscaleStyle() {
+    removeGrayscaleStyle();
+    if (!state.globalEnabled) return;
+    if (!isFeatureEnabled('GRAYSCALE')) return;
+
+    const style = document.createElement('style');
+    style.id = GRAYSCALE_STYLE_ID;
+    style.textContent = `
+        html {
+            filter: grayscale(100%) !important;
+        }
+    `;
     (document.head || document.documentElement).appendChild(style);
 }
 
@@ -161,7 +241,7 @@ function restoreInlineHiddenElements() {
 }
 
 function shouldRunDynamicShortsCleanup() {
-    return state.globalEnabled && isFeatureEnabled('YT_SHORTS');
+    return currentSiteId === 'youtube' && state.globalEnabled && isFeatureEnabled('YT_SHORTS');
 }
 
 function applyDynamicRules() {
@@ -193,14 +273,19 @@ function normalizeIncomingState(incoming) {
         customRulesEnabled:
             typeof incoming.customRulesEnabled === 'boolean' ? incoming.customRulesEnabled : defaults.customRulesEnabled,
         customRulesText: typeof incoming.customRulesText === 'string' ? incoming.customRulesText : defaults.customRulesText,
-        features: { ...defaults.features }
+        sites: cloneSites(defaults.sites)
     };
 
-    const sourceFeatures = incoming.features || {};
-    FEATURE_DEFS.forEach((feature) => {
-        if (typeof sourceFeatures[feature.id] === 'boolean') {
-            next.features[feature.id] = sourceFeatures[feature.id];
-        }
+    const sourceSites = incoming.sites || {};
+    Object.keys(SITE_DEFS).forEach((siteId) => {
+        const site = SITE_DEFS[siteId];
+        const sourceFeatures = sourceSites[siteId]?.features || (siteId === SITE_DEFAULT_ID ? incoming.features || {} : {});
+
+        site.featureDefs.forEach((feature) => {
+            if (typeof sourceFeatures[feature.id] === 'boolean') {
+                next.sites[siteId].features[feature.id] = sourceFeatures[feature.id];
+            }
+        });
     });
 
     return next;
@@ -208,8 +293,10 @@ function normalizeIncomingState(incoming) {
 
 function applyState(nextState) {
     state = normalizeIncomingState(nextState);
+    currentSiteId = getCurrentSiteId();
     applyRuleAttributes();
     applyCustomRulesStyle();
+    applyGrayscaleStyle();
     applyDynamicRules();
     if (document.body) {
         updateObserverState();
@@ -222,7 +309,7 @@ function loadStateWithVersionReset(callback) {
             globalEnabled: defaults.globalEnabled,
             customRulesEnabled: defaults.customRulesEnabled,
             customRulesText: defaults.customRulesText,
-            features: defaults.features,
+            sites: defaults.sites,
             [SETTINGS_VERSION_KEY]: ''
         },
         (stored) => {
@@ -232,7 +319,8 @@ function loadStateWithVersionReset(callback) {
                     globalEnabled: stored.globalEnabled,
                     customRulesEnabled: stored.customRulesEnabled,
                     customRulesText: stored.customRulesText,
-                    features: stored.features
+                    features: stored.features,
+                    sites: stored.sites
                 });
                 return;
             }
@@ -241,7 +329,7 @@ function loadStateWithVersionReset(callback) {
                 globalEnabled: defaults.globalEnabled,
                 customRulesEnabled: defaults.customRulesEnabled,
                 customRulesText: defaults.customRulesText,
-                features: { ...defaults.features },
+                sites: cloneSites(defaults.sites),
                 [SETTINGS_VERSION_KEY]: CURRENT_SETTINGS_VERSION
             };
 
@@ -278,7 +366,8 @@ chrome.storage.onChanged.addListener((changes, area) => {
         Object.prototype.hasOwnProperty.call(changes, 'globalEnabled') ||
         Object.prototype.hasOwnProperty.call(changes, 'customRulesEnabled') ||
         Object.prototype.hasOwnProperty.call(changes, 'customRulesText') ||
-        Object.prototype.hasOwnProperty.call(changes, 'features');
+        Object.prototype.hasOwnProperty.call(changes, 'features') ||
+        Object.prototype.hasOwnProperty.call(changes, 'sites');
     if (!hasRelevantChange) return;
 
     chrome.storage.sync.get(
@@ -286,7 +375,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
             globalEnabled: defaults.globalEnabled,
             customRulesEnabled: defaults.customRulesEnabled,
             customRulesText: defaults.customRulesText,
-            features: defaults.features
+            sites: defaults.sites
         },
         (storedState) => {
             applyState(storedState);

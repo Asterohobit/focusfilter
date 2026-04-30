@@ -39,6 +39,30 @@
       margin-bottom: 8px;
     }
 
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .select {
+      width: 132px;
+      border: 1px solid #353535;
+      border-radius: 8px;
+      background: #101010;
+      color: #f1f1f1;
+      font: inherit;
+      padding: 7px 10px;
+      outline: none;
+    }
+
+    .select:focus {
+      border-color: #4c8bf5;
+      box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.2);
+    }
+
     .rows {
       display: flex;
       flex-direction: column;
@@ -153,7 +177,10 @@
   </div>
 
   <div class="section">
-    <div class="section-title">YouTube Rules</div>
+    <div class="section-head">
+      <div class="section-title" id="site-section-title">YouTube Rules</div>
+      <select id="site-select" class="select" aria-label="Website to manage"></select>
+    </div>
     <div class="rows" id="feature-rows"></div>
   </div>
 
