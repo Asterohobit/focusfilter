@@ -72,6 +72,11 @@ article:has(a._ad63) {
 }
 
 html[data-ff-global="1"][data-ff-rule-insta-hide-reels-button="1"]
-div:has(a[href="/reels/"]) {
+a[href="/reels/"] {
+    display: none !important;
+}
+
+html[data-ff-global="1"][data-ff-rule-insta-hide-explore-button="1"]
+a[href="/explore/"] {
     display: none !important;
 }

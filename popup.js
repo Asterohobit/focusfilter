@@ -46,6 +46,12 @@ const SITE_DEFS = [
         label: 'Hide Reels button',
         description: 'Reels navigation button in the sidebar',
         defaultEnabled: true
+      },
+      {
+        id: 'INSTA_HIDE_EXPLORE_BUTTON',
+        label: 'Hide Explore button',
+        description: 'Explore navigation button in the sidebar',
+        defaultEnabled: true
       }
     ]
   }

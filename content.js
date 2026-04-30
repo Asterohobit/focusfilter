@@ -24,11 +24,13 @@ const SITE_DEFS = {
     instagram: {
         featureDefs: [
             { id: 'INSTA_HIDE_ADS_HOMEFEED', defaultEnabled: true },
-            { id: 'INSTA_HIDE_REELS_BUTTON', defaultEnabled: true }
+            { id: 'INSTA_HIDE_REELS_BUTTON', defaultEnabled: true },
+            { id: 'INSTA_HIDE_EXPLORE_BUTTON', defaultEnabled: true }
         ],
         ruleDefs: [
             { id: 'insta-hide-ads-homefeed', keys: ['INSTA_HIDE_ADS_HOMEFEED'], mode: 'any' },
-            { id: 'insta-hide-reels-button', keys: ['INSTA_HIDE_REELS_BUTTON'], mode: 'any' }
+            { id: 'insta-hide-reels-button', keys: ['INSTA_HIDE_REELS_BUTTON'], mode: 'any' },
+            { id: 'insta-hide-explore-button', keys: ['INSTA_HIDE_EXPLORE_BUTTON'], mode: 'any' }
         ]
     }
 };
