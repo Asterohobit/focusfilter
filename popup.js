@@ -1,37 +1,64 @@
-const FEATURE_DEFS = [
+const SITE_DEFS = [
   {
-    id: 'YT_SHORTS',
-    label: 'Hide Shorts surfaces',
-    description: 'Navigation, shelves, tabs and related Shorts elements',
-    defaultEnabled: true
+    id: 'youtube',
+    label: 'YouTube',
+    sectionTitle: 'YouTube Rules',
+    features: [
+      {
+        id: 'YT_SHORTS',
+        label: 'Hide Shorts surfaces',
+        description: 'Navigation, shelves, tabs and related Shorts elements',
+        defaultEnabled: true
+      },
+      {
+        id: 'YT_VIDEO_SIDEBAR',
+        label: 'Hide video sidebar',
+        description: 'Recommended videos on the watch page',
+        defaultEnabled: true
+      },
+      {
+        id: 'YT_HOMESCREEN',
+        label: 'Hide home recommendations',
+        description: 'Home feed and end-screen recommendation cards',
+        defaultEnabled: true
+      },
+      {
+        id: 'YT_VIDEO_ENDCARD',
+        label: 'Hide recommendations on video end screen',
+        description: 'Recommended videos shown at the end of a video',
+        defaultEnabled: false
+      }
+    ]
   },
   {
-    id: 'YT_VIDEO_SIDEBAR',
-    label: 'Hide video sidebar',
-    description: 'Recommended videos on the watch page',
-    defaultEnabled: true
-  },
-  {
-    id: 'YT_HOMESCREEN',
-    label: 'Hide home recommendations',
-    description: 'Home feed and end-screen recommendation cards',
-    defaultEnabled: true
-  },
-  {
-    id: 'YT_VIDEO_ENDCARD',
-    label: 'Hide recommendations on video end screen',
-    description: 'Recommended videos shown at the end of a video',
-    defaultEnabled: false
+    id: 'instagram',
+    label: 'Instagram',
+    sectionTitle: 'Instagram Rules',
+    features: [
+      {
+        id: 'INSTA_HIDE_ADS_HOMEFEED',
+        label: 'Hide ads in home feed',
+        description: 'Articles containing ad marker links',
+        defaultEnabled: true
+      }
+    ]
   }
 ];
+
+const SITE_DEFAULT_ID = 'youtube';
 
 const defaults = {
   globalEnabled: true,
   customRulesEnabled: true,
   customRulesText: '',
-  features: FEATURE_DEFS.reduce((acc, feature) => {
-    acc[feature.id] = feature.defaultEnabled;
-    return acc;
+  sites: SITE_DEFS.reduce((siteAcc, site) => {
+    siteAcc[site.id] = {
+      features: site.features.reduce((featureAcc, feature) => {
+        featureAcc[feature.id] = feature.defaultEnabled;
+        return featureAcc;
+      }, {})
+    };
+    return siteAcc;
   }, {})
 };
 const SETTINGS_VERSION_KEY = 'settingsVersion';
@@ -40,6 +67,8 @@ const MAX_CUSTOM_RULES_TEXT_LENGTH = 1000;
 
 const masterToggle = document.getElementById('master-toggle');
 const masterStatus = document.getElementById('master-status');
+const siteSelect = document.getElementById('site-select');
+const siteSectionTitle = document.getElementById('site-section-title');
 const featureRows = document.getElementById('feature-rows');
 const customRulesToggle = document.getElementById('custom-rules-toggle');
 const customRulesStatus = document.getElementById('custom-rules-status');
@@ -50,8 +79,65 @@ let state = {
   globalEnabled: defaults.globalEnabled,
   customRulesEnabled: defaults.customRulesEnabled,
   customRulesText: defaults.customRulesText,
-  features: { ...defaults.features }
+  sites: cloneSites(defaults.sites)
 };
+let selectedSiteId = SITE_DEFAULT_ID;
+
+function cloneSites(sourceSites) {
+  return SITE_DEFS.reduce((siteAcc, site) => {
+    const sourceSite = sourceSites && sourceSites[site.id] ? sourceSites[site.id] : {};
+    const sourceFeatures = sourceSite.features || {};
+
+    siteAcc[site.id] = {
+      features: site.features.reduce((featureAcc, feature) => {
+        featureAcc[feature.id] = typeof sourceFeatures[feature.id] === 'boolean' ? sourceFeatures[feature.id] : feature.defaultEnabled;
+        return featureAcc;
+      }, {})
+    };
+
+    return siteAcc;
+  }, {});
+}
+
+function getSiteDefinition(siteId) {
+  return SITE_DEFS.find((site) => site.id === siteId) || SITE_DEFS[0];
+}
+
+function normalizeSiteId(siteId) {
+  return SITE_DEFS.some((site) => site.id === siteId) ? siteId : SITE_DEFAULT_ID;
+}
+
+function detectSiteFromUrl(url) {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    if (hostname === 'instagram.com' || hostname.endsWith('.instagram.com')) {
+      return 'instagram';
+    }
+    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
+      return 'youtube';
+    }
+  } catch (error) {
+    return SITE_DEFAULT_ID;
+  }
+
+  return SITE_DEFAULT_ID;
+}
+
+function detectCurrentSite(callback) {
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    if (!tab || typeof tab.url !== 'string') {
+      callback(SITE_DEFAULT_ID);
+      return;
+    }
+
+    callback(detectSiteFromUrl(tab.url));
+  });
+}
+
+function getSelectedSiteFeatures() {
+  const siteState = state.sites[selectedSiteId] || defaults.sites[SITE_DEFAULT_ID];
+  return siteState.features;
+}
 
 function clampCustomRulesText(text) {
   return typeof text === 'string' ? text.slice(0, MAX_CUSTOM_RULES_TEXT_LENGTH) : '';
@@ -73,14 +159,17 @@ function normalizeIncomingState(incoming) {
     customRulesText: clampCustomRulesText(
       typeof incoming.customRulesText === 'string' ? incoming.customRulesText : defaults.customRulesText
     ),
-    features: { ...defaults.features }
+    sites: cloneSites(defaults.sites)
   };
 
-  const sourceFeatures = incoming.features || {};
-  FEATURE_DEFS.forEach((feature) => {
-    if (typeof sourceFeatures[feature.id] === 'boolean') {
-      next.features[feature.id] = sourceFeatures[feature.id];
-    }
+  const sourceSites = incoming.sites || {};
+  SITE_DEFS.forEach((site) => {
+    const sourceFeatures = sourceSites[site.id]?.features || (site.id === SITE_DEFAULT_ID ? incoming.features || {} : {});
+    site.features.forEach((feature) => {
+      if (typeof sourceFeatures[feature.id] === 'boolean') {
+        next.sites[site.id].features[feature.id] = sourceFeatures[feature.id];
+      }
+    });
   });
 
   return next;
@@ -100,8 +189,9 @@ function saveAndBroadcast() {
 
 function renderFeatureRows() {
   featureRows.textContent = '';
+  const site = getSiteDefinition(selectedSiteId);
 
-  FEATURE_DEFS.forEach((feature) => {
+  site.features.forEach((feature) => {
     const row = document.createElement('div');
     row.className = 'row';
 
@@ -124,7 +214,7 @@ function renderFeatureRows() {
 
     const input = document.createElement('input');
     input.type = 'checkbox';
-    input.id = `toggle-${feature.id}`;
+    input.id = `toggle-${site.id}-${feature.id}`;
     input.dataset.featureId = feature.id;
 
     const track = document.createElement('div');
@@ -138,7 +228,7 @@ function renderFeatureRows() {
     featureRows.appendChild(row);
 
     input.addEventListener('change', () => {
-      state.features[feature.id] = input.checked;
+      state.sites[selectedSiteId].features[feature.id] = input.checked;
       renderState();
       saveAndBroadcast();
     });
@@ -148,6 +238,16 @@ function renderFeatureRows() {
 function renderState() {
   masterToggle.checked = state.globalEnabled;
   masterStatus.textContent = state.globalEnabled ? 'Enabled' : 'Disabled';
+
+  const site = getSiteDefinition(selectedSiteId);
+
+  if (siteSectionTitle) {
+    siteSectionTitle.textContent = site.sectionTitle;
+  }
+
+  if (siteSelect && siteSelect.value !== selectedSiteId) {
+    siteSelect.value = selectedSiteId;
+  }
 
   if (customRulesToggle) {
     customRulesToggle.checked = state.customRulesEnabled;
@@ -177,17 +277,37 @@ function renderState() {
     customRulesUpdate.disabled = !state.globalEnabled;
   }
 
-  FEATURE_DEFS.forEach((feature) => {
-    const input = document.getElementById(`toggle-${feature.id}`);
+  site.features.forEach((feature) => {
+    const input = document.getElementById(`toggle-${site.id}-${feature.id}`);
     const status = document.getElementById(`status-${feature.id}`);
     if (!input || !status) return;
 
-    input.checked = Boolean(state.features[feature.id]);
+    input.checked = Boolean(getSelectedSiteFeatures()[feature.id]);
     input.disabled = !state.globalEnabled;
     status.textContent = state.globalEnabled
       ? (input.checked ? 'Enabled' : 'Disabled')
       : 'Disabled by global switch';
   });
+}
+
+function renderSiteOptions() {
+  if (!siteSelect) return;
+
+  siteSelect.textContent = '';
+
+  SITE_DEFS.forEach((site) => {
+    const option = document.createElement('option');
+    option.value = site.id;
+    option.textContent = site.label;
+    siteSelect.appendChild(option);
+  });
+
+  siteSelect.value = selectedSiteId;
+}
+
+function updateSiteView() {
+  renderFeatureRows();
+  renderState();
 }
 
 function loadStateWithVersionReset(callback) {
@@ -196,7 +316,7 @@ function loadStateWithVersionReset(callback) {
       globalEnabled: defaults.globalEnabled,
       customRulesEnabled: defaults.customRulesEnabled,
       customRulesText: defaults.customRulesText,
-      features: defaults.features,
+      sites: defaults.sites,
       [SETTINGS_VERSION_KEY]: ''
     },
     (stored) => {
@@ -206,7 +326,8 @@ function loadStateWithVersionReset(callback) {
           globalEnabled: stored.globalEnabled,
           customRulesEnabled: stored.customRulesEnabled,
           customRulesText: stored.customRulesText,
-          features: stored.features
+          features: stored.features,
+          sites: stored.sites
         });
         return;
       }
@@ -215,7 +336,7 @@ function loadStateWithVersionReset(callback) {
         globalEnabled: defaults.globalEnabled,
         customRulesEnabled: defaults.customRulesEnabled,
         customRulesText: defaults.customRulesText,
-        features: { ...defaults.features },
+        sites: cloneSites(defaults.sites),
         [SETTINGS_VERSION_KEY]: CURRENT_SETTINGS_VERSION
       };
 
@@ -224,6 +345,13 @@ function loadStateWithVersionReset(callback) {
       });
     }
   );
+}
+
+if (siteSelect) {
+  siteSelect.addEventListener('change', () => {
+    selectedSiteId = normalizeSiteId(siteSelect.value);
+    updateSiteView();
+  });
 }
 
 masterToggle.addEventListener('change', () => {
@@ -250,7 +378,13 @@ if (customRulesUpdate) {
   });
 }
 
+renderSiteOptions();
 renderFeatureRows();
+detectCurrentSite((siteId) => {
+  selectedSiteId = normalizeSiteId(siteId);
+  renderSiteOptions();
+  updateSiteView();
+});
 loadStateWithVersionReset((storedState) => {
   state = normalizeIncomingState(storedState);
   renderState();

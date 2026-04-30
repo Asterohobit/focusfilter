@@ -65,3 +65,8 @@ html[data-ff-global="1"][data-ff-rule-yt-shorts-nav="1"]
 div[class="reel-video-in-sequence-new style-scope ytd-shorts"][id="2"] {
     display: none !important;
 }
+
+html[data-ff-global="1"][data-ff-rule-insta-hide-ads-homefeed="1"]
+article:has(a._ad63) {
+    display: none !important;
+}
