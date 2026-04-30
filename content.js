@@ -4,7 +4,8 @@ const SITE_DEFS = {
             { id: 'YT_SHORTS', defaultEnabled: true },
             { id: 'YT_VIDEO_SIDEBAR', defaultEnabled: true },
             { id: 'YT_HOMESCREEN', defaultEnabled: true },
-            { id: 'YT_VIDEO_ENDCARD', defaultEnabled: true }
+            { id: 'YT_VIDEO_ENDCARD', defaultEnabled: true },
+            { id: 'GRAYSCALE', defaultEnabled: false }
         ],
         ruleDefs: [
             { id: 'yt-shorts-nav', keys: ['YT_SHORTS'], mode: 'any' },
@@ -25,7 +26,8 @@ const SITE_DEFS = {
         featureDefs: [
             { id: 'INSTA_HIDE_ADS_HOMEFEED', defaultEnabled: true },
             { id: 'INSTA_HIDE_REELS_BUTTON', defaultEnabled: true },
-            { id: 'INSTA_HIDE_EXPLORE_BUTTON', defaultEnabled: true }
+            { id: 'INSTA_HIDE_EXPLORE_BUTTON', defaultEnabled: true },
+            { id: 'GRAYSCALE', defaultEnabled: false }
         ],
         ruleDefs: [
             { id: 'insta-hide-ads-homefeed', keys: ['INSTA_HIDE_ADS_HOMEFEED'], mode: 'any' },
@@ -38,6 +40,7 @@ const SITE_DEFS = {
 const SITE_DEFAULT_ID = 'youtube';
 const INLINE_HIDE_ATTR = 'data-ff-inline-hidden';
 const CUSTOM_RULES_STYLE_ID = 'ff-custom-rules-style';
+const GRAYSCALE_STYLE_ID = 'ff-grayscale-style';
 const SETTINGS_VERSION_KEY = 'settingsVersion';
 const CURRENT_SETTINGS_VERSION = chrome.runtime.getManifest().version;
 const defaults = {
@@ -172,6 +175,28 @@ function applyCustomRulesStyle() {
     (document.head || document.documentElement).appendChild(style);
 }
 
+function removeGrayscaleStyle() {
+    const existing = document.getElementById(GRAYSCALE_STYLE_ID);
+    if (existing) {
+        existing.remove();
+    }
+}
+
+function applyGrayscaleStyle() {
+    removeGrayscaleStyle();
+    if (!state.globalEnabled) return;
+    if (!isFeatureEnabled('GRAYSCALE')) return;
+
+    const style = document.createElement('style');
+    style.id = GRAYSCALE_STYLE_ID;
+    style.textContent = `
+        html {
+            filter: grayscale(100%) !important;
+        }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+}
+
 // Hides Shorts elements that may not be covered by CSS rules, based on their aria-label. This is necessary because some Shorts elements are rendered in a way that makes them difficult to target with CSS alone. By using an inline style, we can ensure they are hidden regardless of their position in the DOM or how they are rendered.
 function hideShortsByAriaLabel() {
     document.querySelectorAll('[aria-label*="Shorts"]').forEach((el) => {
@@ -271,6 +296,7 @@ function applyState(nextState) {
     currentSiteId = getCurrentSiteId();
     applyRuleAttributes();
     applyCustomRulesStyle();
+    applyGrayscaleStyle();
     applyDynamicRules();
     if (document.body) {
         updateObserverState();

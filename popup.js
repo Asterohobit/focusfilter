@@ -27,6 +27,12 @@ const SITE_DEFS = [
         label: 'Hide recommendations on video end screen',
         description: 'Recommended videos shown at the end of a video',
         defaultEnabled: false
+      },
+      {
+        id: 'GRAYSCALE',
+        label: 'Grayscale site',
+        description: 'Render the site in black and white',
+        defaultEnabled: false
       }
     ]
   },
@@ -52,6 +58,12 @@ const SITE_DEFS = [
         label: 'Hide Explore button',
         description: 'Explore navigation button in the sidebar',
         defaultEnabled: true
+      },
+      {
+        id: 'GRAYSCALE',
+        label: 'Grayscale site',
+        description: 'Render the site in black and white',
+        defaultEnabled: false
       }
     ]
   }
