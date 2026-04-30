@@ -40,6 +40,12 @@ const SITE_DEFS = [
         label: 'Hide ads in home feed',
         description: 'Articles containing ad marker links',
         defaultEnabled: true
+      },
+      {
+        id: 'INSTA_HIDE_REELS_BUTTON',
+        label: 'Hide Reels button',
+        description: 'Reels navigation button in the sidebar',
+        defaultEnabled: true
       }
     ]
   }
