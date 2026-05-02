@@ -1,217 +1,278 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>FocusFilter</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <title>FocusFilter</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    body {
-      width: 320px;
-      background: #0f0f0f;
-      color: #f1f1f1;
-      font-family: system-ui, sans-serif;
-      font-size: 13px;
-      padding: 10px;
-      user-select: none;
-    }
+      body {
+        width: 320px;
+        background: #0f0f0f;
+        color: #f1f1f1;
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+        padding: 10px;
+        user-select: none;
+      }
 
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .logo {
-      width: 24px; height: 24px;
-      background: #224422;
-      border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; color: #fff;
-    }
-    .title { font-weight: 600; font-size: 14px; }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .logo {
+        width: 24px;
+        height: 24px;
+        background: #224422;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #fff;
+      }
+      .title {
+        font-weight: 600;
+        font-size: 14px;
+      }
 
-    .section-title {
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #8a8a8a;
-      margin-bottom: 8px;
-    }
+      .section-title {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8a8a8a;
+        margin-bottom: 8px;
+      }
 
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
 
-    .select {
-      width: 132px;
-      border: 1px solid #353535;
-      border-radius: 8px;
-      background: #101010;
-      color: #f1f1f1;
-      font: inherit;
-      padding: 7px 10px;
-      outline: none;
-    }
+      .select {
+        width: 132px;
+        border: 1px solid #353535;
+        border-radius: 8px;
+        background: #101010;
+        color: #f1f1f1;
+        font: inherit;
+        padding: 7px 10px;
+        outline: none;
+      }
 
-    .select:focus {
-      border-color: #4c8bf5;
-      box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.2);
-    }
+      .select:focus {
+        border-color: #4c8bf5;
+        box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.2);
+      }
 
-    .rows {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+      .rows {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
 
-    .custom-card {
-      padding: 12px;
-      background: #1a1a1a;
-      border-radius: 8px;
-      border: 1px solid #2e2e2e;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+      .custom-card {
+        padding: 12px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        border: 1px solid #2e2e2e;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
 
-    .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 12px;
-      background: #1a1a1a;
-      border-radius: 8px;
-      border: 1px solid #2e2e2e;
-    }
-    .label { font-size: 13px; }
-    .status { font-size: 11px; color: #717171; margin-top: 2px; }
-    .section { margin-top: 14px; }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        border: 1px solid #2e2e2e;
+      }
+      .label {
+        font-size: 13px;
+      }
+      .status {
+        font-size: 11px;
+        color: #717171;
+        margin-top: 2px;
+      }
+      .section {
+        margin-top: 14px;
+      }
 
-    .field {
-      width: 100%;
-      min-height: 88px;
-      resize: vertical;
-      border: 1px solid #353535;
-      border-radius: 8px;
-      background: #101010;
-      color: #f1f1f1;
-      padding: 10px 12px;
-      font: 12px ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-      line-height: 1.4;
-      outline: none;
-    }
+      .field {
+        width: 100%;
+        min-height: 88px;
+        resize: vertical;
+        border: 1px solid #353535;
+        border-radius: 8px;
+        background: #101010;
+        color: #f1f1f1;
+        padding: 10px 12px;
+        font:
+          12px ui-monospace,
+          SFMono-Regular,
+          Consolas,
+          "Liberation Mono",
+          Menlo,
+          monospace;
+        line-height: 1.4;
+        outline: none;
+      }
 
-    .field:focus {
-      border-color: #4c8bf5;
-      box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.2);
-    }
+      .field:focus {
+        border-color: #4c8bf5;
+        box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.2);
+      }
 
-    .hint {
-      font-size: 11px;
-      color: #8a8a8a;
-      line-height: 1.4;
-    }
+      .hint {
+        font-size: 11px;
+        color: #8a8a8a;
+        line-height: 1.4;
+      }
 
-    .button {
-      align-self: flex-end;
-      border: 0;
-      border-radius: 8px;
-      background: #2ba640;
-      color: #fff;
-      font: inherit;
-      font-weight: 600;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: background 0.2s, opacity 0.2s;
-    }
+      .button {
+        align-self: flex-end;
+        border: 0;
+        border-radius: 8px;
+        background: #2ba640;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          opacity 0.2s;
+      }
 
-    .button:hover { background: #239036; }
-    .button:disabled { cursor: not-allowed; opacity: 0.45; }
+      .button:hover {
+        background: #239036;
+      }
+      .button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
 
-    /* toggle */
-    .tog { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
-    .tog input { display: none; }
-    .track {
-      position: absolute; inset: 0;
-      background: #3a3a3a;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .track::after {
-      content: '';
-      position: absolute;
-      top: 3px; left: 3px;
-      width: 14px; height: 14px;
-      background: #888;
-      border-radius: 50%;
-      transition: transform 0.2s, background 0.2s;
-    }
-    .tog input:checked + .track { background: #2ba640; }
-    .tog input:checked + .track::after { background: #fff; transform: translateX(16px); }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <img src="icons/focusfilter-48.png" alt="FocusFilter logo" class="logo" />
-    <span class="title">FocusFilter</span>
-  </div>
-
-  <div class="section-title">Global</div>
-  <div class="rows">
-    <div class="row">
-      <div>
-        <div class="label">Enable FocusFilter</div>
-        <div class="status" id="master-status"></div>
-      </div>
-      <label class="tog">
-        <input type="checkbox" id="master-toggle" />
-        <div class="track"></div>
-      </label>
+      /* toggle */
+      .tog {
+        position: relative;
+        width: 36px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      .tog input {
+        display: none;
+      }
+      .track {
+        position: absolute;
+        inset: 0;
+        background: #3a3a3a;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .track::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 14px;
+        height: 14px;
+        background: #888;
+        border-radius: 50%;
+        transition:
+          transform 0.2s,
+          background 0.2s;
+      }
+      .tog input:checked + .track {
+        background: #2ba640;
+      }
+      .tog input:checked + .track::after {
+        background: #fff;
+        transform: translateX(16px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="icons/focusfilter-48.png" alt="FocusFilter logo" class="logo" />
+      <span class="title">FocusFilter</span>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="section-head">
-      <div class="section-title" id="site-section-title">YouTube Rules</div>
-      <select id="site-select" class="select" aria-label="Website to manage"></select>
-    </div>
-    <div class="rows" id="feature-rows"></div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Custom rules</div>
+    <div class="section-title">Global</div>
     <div class="rows">
       <div class="row">
         <div>
-          <div class="label">Custom rules</div>
-          <div class="status" id="custom-rules-status"></div>
+          <div class="label">Enable FocusFilter</div>
+          <div class="status" id="master-status"></div>
         </div>
         <label class="tog">
-          <input type="checkbox" id="custom-rules-toggle" />
+          <input type="checkbox" id="master-toggle" />
           <div class="track"></div>
         </label>
       </div>
+    </div>
 
-      <div class="custom-card">
-        <label for="custom-rules-input" class="label">Define your own rules</label>
-        <textarea
-          id="custom-rules-input"
-          class="field"
-          maxlength="1000"
-          placeholder="css-component-1[attribute=example]"
-        ></textarea>
-        <div class="hint">One CSS selector per line. Invalid selectors are ignored.</div>
-        <button id="custom-rules-update" class="button" type="button">Update</button>
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title" id="site-section-title">YouTube Rules</div>
+        <select
+          id="site-select"
+          class="select"
+          aria-label="Website to manage"
+        ></select>
+      </div>
+      <div class="rows" id="feature-rows"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Custom rules</div>
+      <div class="rows">
+        <div class="row">
+          <div>
+            <div class="label">Custom rules</div>
+            <div class="status" id="custom-rules-status"></div>
+          </div>
+          <label class="tog">
+            <input type="checkbox" id="custom-rules-toggle" />
+            <div class="track"></div>
+          </label>
+        </div>
+
+        <div class="custom-card">
+          <label for="custom-rules-input" class="label"
+            >Define your own rules</label
+          >
+          <textarea
+            id="custom-rules-input"
+            class="field"
+            maxlength="1000"
+            placeholder="css-component-1[attribute=example]"
+          ></textarea>
+          <div class="hint">
+            One CSS selector per line. Invalid selectors are ignored.
+          </div>
+          <button id="custom-rules-update" class="button" type="button">
+            Update
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="popup.js"></script>
-</body>
+    <script src="popup.js"></script>
+  </body>
 </html>

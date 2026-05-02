@@ -1,87 +1,85 @@
 /* --- YouTube rules --- */
 /* Hide the Shorts link in the left sidebar */
-html[data-ff-global="1"][data-ff-rule-yt-shorts-nav="1"]
-a[title="Shorts"] {
-    display: none !important;
+html[data-ff-global="1"][data-ff-rule-yt-shorts-nav="1"] a[title="Shorts"] {
+  display: none !important;
 }
 
 /* Hide the horizontal Shorts shelves on the homepage */
 html[data-ff-global="1"][data-ff-rule-yt-shorts-home-shelf="1"]
-ytd-rich-shelf-renderer[is-shorts] {
-    display: none !important;
+  ytd-rich-shelf-renderer[is-shorts] {
+  display: none !important;
 }
 
 /* Hide the horizontal Shorts shelves on the search results page */
 html[data-ff-global="1"][data-ff-rule-yt-shorts-search-shelf="1"]
-grid-shelf-view-model {
-    display: none !important;
+  grid-shelf-view-model {
+  display: none !important;
 }
 
 /* Hide videos on the homepage */
 html[data-ff-global="1"][data-ff-rule-yt-home-feed="1"]
-ytd-two-column-browse-results-renderer[page-subtype="home"] {
-    display: none !important;
+  ytd-two-column-browse-results-renderer[page-subtype="home"] {
+  display: none !important;
 }
 
 /* Hide video recommendations on video end screen */
 html[data-ff-global="1"][data-ff-rule-yt-watch-endscreen="1"]
-div[class="ytp-fullscreen-grid-stills-container"] {
-    display: none !important;
+  div[class="ytp-fullscreen-grid-stills-container"] {
+  display: none !important;
 }
 
 /* Hide the entire sidebar on the video page */
 html[data-ff-global="1"][data-ff-rule-yt-video-sidebar="1"]
-div[id="secondary"][class="style-scope ytd-watch-flexy"] {
-    display: none !important;
+  div[id="secondary"][class="style-scope ytd-watch-flexy"] {
+  display: none !important;
 }
 
 /* Hide the Shorts tab on the channel page */
 html[data-ff-global="1"][data-ff-rule-yt-channel-shorts-tab="1"]
-yt-tab-shape[tab-title="Shorts"] {
-    display: none !important;
+  yt-tab-shape[tab-title="Shorts"] {
+  display: none !important;
 }
 
 /* Hide the Shorts in the Shorts tab on the channel page
    only relevant if you type the Shorts tab URL directly, since the tab is hidden */
 html[data-ff-global="1"][data-ff-rule-yt-channel-shorts-grid="1"]
-ytd-rich-item-renderer[is-shorts-grid] {
-    display: none !important;
+  ytd-rich-item-renderer[is-shorts-grid] {
+  display: none !important;
 }
 
 /* Hide Shorts shelves on the channel page */
 html[data-ff-global="1"][data-ff-rule-yt-channel-shorts-shelf="1"]
-ytd-reel-shelf-renderer {
-    display: none !important;
+  ytd-reel-shelf-renderer {
+  display: none !important;
 }
 
 /* Hide Shorts in the 'For you' section on the channel page, also the wrapper */
 html[data-ff-global="1"][data-ff-rule-yt-mobile-shorts-lockup="1"]
-ytm-shorts-lockup-view-model,
+  ytm-shorts-lockup-view-model,
 html[data-ff-global="1"][data-ff-rule-yt-mobile-shorts-lockup="1"]
-ytm-shorts-lockup-view-model-v2 {
-    display: none !important;
+  ytm-shorts-lockup-view-model-v2 {
+  display: none !important;
 }
 
 /* Hide next Reell on the Reell watch page, essentially disabling scrolling */
 html[data-ff-global="1"][data-ff-rule-yt-shorts-next-reel="1"]
-div[class="reel-video-in-sequence-new style-scope ytd-shorts"]:not([id="0"]) {
-    display: none !important;
+  div[class="reel-video-in-sequence-new style-scope ytd-shorts"]:not([id="0"]) {
+  display: none !important;
 }
-
 
 /* --- Instagram rules --- */
 /* Hide ads in the Instagram home feed */
 html[data-ff-global="1"][data-ff-rule-insta-hide-ads-homefeed="1"]
-article:has(a._ad63) {
-    display: none !important;
+  article:has(a._ad63) {
+  display: none !important;
 }
 
 html[data-ff-global="1"][data-ff-rule-insta-hide-reels-button="1"]
-a[href="/reels/"] {
-    display: none !important;
+  a[href="/reels/"] {
+  display: none !important;
 }
 
 html[data-ff-global="1"][data-ff-rule-insta-hide-explore-button="1"]
-a[href="/explore/"] {
-    display: none !important;
+  a[href="/explore/"] {
+  display: none !important;
 }
