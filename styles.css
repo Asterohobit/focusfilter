@@ -1,3 +1,4 @@
+/* --- YouTube rules --- */
 /* Hide the Shorts link in the left sidebar */
 html[data-ff-global="1"][data-ff-rule-yt-shorts-nav="1"] a[title="Shorts"] {
   display: none !important;
@@ -60,11 +61,14 @@ html[data-ff-global="1"][data-ff-rule-yt-mobile-shorts-lockup="1"]
   display: none !important;
 }
 
-html[data-ff-global="1"][data-ff-rule-yt-shorts-nav="1"]
-  div[class="reel-video-in-sequence-new style-scope ytd-shorts"][id="2"] {
+/* Hide next Reell on the Reell watch page, essentially disabling scrolling */
+html[data-ff-global="1"][data-ff-rule-yt-shorts-next-reel="1"]
+  div[class="reel-video-in-sequence-new style-scope ytd-shorts"]:not([id="0"]) {
   display: none !important;
 }
 
+/* --- Instagram rules --- */
+/* Hide ads in the Instagram home feed */
 html[data-ff-global="1"][data-ff-rule-insta-hide-ads-homefeed="1"]
   article:has(a._ad63) {
   display: none !important;

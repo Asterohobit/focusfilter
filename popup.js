@@ -7,7 +7,7 @@ const SITE_DEFS = [
       {
         id: "YT_SHORTS",
         label: "Hide Shorts surfaces",
-        description: "Navigation, shelves, tabs and related Shorts elements",
+        description: "Navigation, shelves, and related Shorts elements",
         defaultEnabled: true,
       },
       {
@@ -19,13 +19,19 @@ const SITE_DEFS = [
       {
         id: "YT_HOMESCREEN",
         label: "Hide home recommendations",
-        description: "Home feed and end-screen recommendation cards",
+        description: "Home feed recommendations",
         defaultEnabled: true,
       },
       {
         id: "YT_VIDEO_ENDCARD",
         label: "Hide recommendations on video end screen",
-        description: "Recommended videos shown at the end of a video",
+        description: "Recommended videos at the end of a video",
+        defaultEnabled: false,
+      },
+      {
+        id: "YT_SHORTS_NEXT_REEL",
+        label: "Disable Reell scrolling",
+        description: "Hide the subsequent Reells",
         defaultEnabled: false,
       },
       {
@@ -90,7 +96,6 @@ const CURRENT_SETTINGS_VERSION = chrome.runtime.getManifest().version;
 const MAX_CUSTOM_RULES_TEXT_LENGTH = 1000;
 
 const masterToggle = document.getElementById("master-toggle");
-const masterStatus = document.getElementById("master-status");
 const siteSelect = document.getElementById("site-select");
 const siteSectionTitle = document.getElementById("site-section-title");
 const featureRows = document.getElementById("feature-rows");
@@ -285,7 +290,6 @@ function renderFeatureRows() {
 
 function renderState() {
   masterToggle.checked = state.globalEnabled;
-  masterStatus.textContent = state.globalEnabled ? "Enabled" : "Disabled";
 
   const site = getSiteDefinition(selectedSiteId);
 
@@ -303,6 +307,11 @@ function renderState() {
   }
 
   if (customRulesStatus) {
+    const ruleCount = countCustomRules(state.customRulesText);
+    customRulesStatus.textContent =
+      ruleCount > 0
+        ? `${ruleCount} selector${ruleCount === 1 ? "" : "s"} saved`
+        : "";
     if (!state.globalEnabled) {
       customRulesStatus.textContent = "Disabled by global switch";
     } else if (!state.customRulesEnabled) {
@@ -335,11 +344,6 @@ function renderState() {
 
     input.checked = Boolean(getSelectedSiteFeatures()[feature.id]);
     input.disabled = !state.globalEnabled;
-    status.textContent = state.globalEnabled
-      ? input.checked
-        ? "Enabled"
-        : "Disabled"
-      : "Disabled by global switch";
   });
 }
 
