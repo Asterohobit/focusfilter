@@ -7,7 +7,7 @@ const SITE_DEFS = [
       {
         id: 'YT_SHORTS',
         label: 'Hide Shorts surfaces',
-        description: 'Navigation, shelves, tabs and related Shorts elements',
+        description: 'Navigation, shelves, and related Shorts elements',
         defaultEnabled: true
       },
       {
@@ -19,13 +19,19 @@ const SITE_DEFS = [
       {
         id: 'YT_HOMESCREEN',
         label: 'Hide home recommendations',
-        description: 'Home feed and end-screen recommendation cards',
+        description: 'Home feed recommendations',
         defaultEnabled: true
       },
       {
         id: 'YT_VIDEO_ENDCARD',
         label: 'Hide recommendations on video end screen',
-        description: 'Recommended videos shown at the end of a video',
+        description: 'Recommended videos at the end of a video',
+        defaultEnabled: false
+      },
+      {
+        id: 'YT_SHORTS_NEXT_REEL',
+        label: 'Disable Reell scrolling',
+        description: 'Hide the subsequent Reells',
         defaultEnabled: false
       },
       {
@@ -261,7 +267,6 @@ function renderFeatureRows() {
 
 function renderState() {
   masterToggle.checked = state.globalEnabled;
-  masterStatus.textContent = state.globalEnabled ? 'Enabled' : 'Disabled';
 
   const site = getSiteDefinition(selectedSiteId);
 
@@ -279,14 +284,8 @@ function renderState() {
   }
 
   if (customRulesStatus) {
-    if (!state.globalEnabled) {
-      customRulesStatus.textContent = 'Disabled by global switch';
-    } else if (!state.customRulesEnabled) {
-      customRulesStatus.textContent = 'Disabled';
-    } else {
-      const ruleCount = countCustomRules(state.customRulesText);
-      customRulesStatus.textContent = ruleCount > 0 ? `${ruleCount} selector${ruleCount === 1 ? '' : 's'} saved` : 'Enabled';
-    }
+    const ruleCount = countCustomRules(state.customRulesText);
+    customRulesStatus.textContent = ruleCount > 0 ? `${ruleCount} selector${ruleCount === 1 ? '' : 's'} saved` : '';
   }
 
   if (customRulesInput && document.activeElement !== customRulesInput) {
@@ -308,9 +307,6 @@ function renderState() {
 
     input.checked = Boolean(getSelectedSiteFeatures()[feature.id]);
     input.disabled = !state.globalEnabled;
-    status.textContent = state.globalEnabled
-      ? (input.checked ? 'Enabled' : 'Disabled')
-      : 'Disabled by global switch';
   });
 }
 
