@@ -1,18 +1,16 @@
 # Blocker Extension
 
+[![Formatting passes](https://img.shields.io/github/actions/workflow/status/Asterohobit/focusfilter/format.yml?branch=main&label=formatting%20passes)](https://github.com/Asterohobit/focusfilter/actions/workflows/format.yml)
+[![Linting passes](https://img.shields.io/github/actions/workflow/status/Asterohobit/focusfilter/lint.yml?branch=main&label=linting%20passes)](https://github.com/Asterohobit/focusfilter/actions/workflows/lint.yml)
+[![Latest release](https://img.shields.io/github/v/release/Asterohobit/focusfilter?label=latest%20release)](https://github.com/Asterohobit/focusfilter/releases/latest)
+
 A Firefox/Chrome browser extension designed to block unwanted components from YouTube and Instagram.
 
 ## Features
 
-- Master toggle plus independent feature toggles in the popup
-- Website selector that switches between YouTube and Instagram rules
-- Key-based YouTube feature controls:
-  - `YT_SHORTS`
-  - `YT_VIDEO_SIDEBAR`
-  - `YT_HOMESCREEN`
-  - `YT_VIDEO_ENDCARD`
-- Instagram feature control:
-  - `INSTA_HIDE_ADS_HOMEFEED`
+- Master toggle plus independent key-based feature toggles in the popup
+- Hide short video content
+- Display website in grayscale for less dopamin
 - Custom CSS selector rules with an enable switch and multiline editor
 
 ## Custom Rules
@@ -28,9 +26,9 @@ ytd-topbar-logo-renderer[id="logo"]
 ## Installation
 
 1. Clone the repository
-2. Load the extension in your browser (on Firefox via `about:debugging#/runtime/firefox`)
+2. Load the extension in your browser (on Firefox via `about:debugging#/runtime/firefox`) by adding a temporary Add-on and selecting `manifest.json`
 3. Configure blocking preferences
 
 ## Contributing
 
-Contributions are welcome. Please submit issues or pull requests with your improvements.
+Contributions are welcome. Please submit issues or pull requests with your improvement ideas or bug fixes.
