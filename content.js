@@ -25,7 +25,11 @@ const SITE_DEFS = {
       { id: "yt-channel-shorts-grid", keys: ["YT_SHORTS"], mode: "any" },
       { id: "yt-channel-shorts-shelf", keys: ["YT_SHORTS"], mode: "any" },
       { id: "yt-mobile-shorts-lockup", keys: ["YT_SHORTS"], mode: "any" },
-      { id: "yt-shorts-next-short", keys: ["YT_SHORTS_NEXT_SHORT"], mode: "any" },
+      {
+        id: "yt-shorts-next-short",
+        keys: ["YT_SHORTS_NEXT_SHORT"],
+        mode: "any",
+      },
     ],
   },
   instagram: {
