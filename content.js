@@ -5,7 +5,7 @@ const SITE_DEFS = {
       { id: "YT_VIDEO_SIDEBAR", defaultEnabled: true },
       { id: "YT_HOMESCREEN", defaultEnabled: true },
       { id: "YT_VIDEO_ENDCARD", defaultEnabled: true },
-      { id: "YT_SHORTS_NEXT_REEL", defaultEnabled: false },
+      { id: "YT_SHORTS_NEXT_SHORT", defaultEnabled: false },
       { id: "GRAYSCALE", defaultEnabled: false },
     ],
     ruleDefs: [
@@ -25,7 +25,7 @@ const SITE_DEFS = {
       { id: "yt-channel-shorts-grid", keys: ["YT_SHORTS"], mode: "any" },
       { id: "yt-channel-shorts-shelf", keys: ["YT_SHORTS"], mode: "any" },
       { id: "yt-mobile-shorts-lockup", keys: ["YT_SHORTS"], mode: "any" },
-      { id: "yt-shorts-next-reel", keys: ["YT_SHORTS_NEXT_REEL"], mode: "any" },
+      { id: "yt-shorts-next-short", keys: ["YT_SHORTS_NEXT_SHORT"], mode: "any" },
     ],
   },
   instagram: {

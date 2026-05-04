@@ -1,4 +1,4 @@
-# Blocker Extension
+# FocusFilter
 
 [![Formatting passes](https://img.shields.io/github/actions/workflow/status/Asterohobit/focusfilter/format.yml?branch=main&label=Format)](https://github.com/Asterohobit/focusfilter/actions/workflows/format.yml)
 [![Linting passes](https://img.shields.io/github/actions/workflow/status/Asterohobit/focusfilter/lint.yml?branch=main&label=Linting)](https://github.com/Asterohobit/focusfilter/actions/workflows/lint.yml)
