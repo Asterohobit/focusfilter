@@ -35,6 +35,12 @@ const SITE_DEFS = [
         defaultEnabled: false,
       },
       {
+        id: "YT_DISABLE_AUTOPLAY",
+        label: "Disable autoplay",
+        description: "Prevent automatically playing next video",
+        defaultEnabled: false,
+      },
+      {
         id: "GRAYSCALE",
         label: "Grayscale site",
         description: "Render the site in black and white",

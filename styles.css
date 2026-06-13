@@ -30,7 +30,9 @@ html[data-ff-global="1"][data-ff-rule-yt-watch-endscreen="1"]
 
 /* Hide the entire sidebar on the video page */
 html[data-ff-global="1"][data-ff-rule-yt-video-sidebar="1"]
-  div[id="secondary"][class="style-scope ytd-watch-flexy"] {
+  div[id="secondary"][class="style-scope ytd-watch-flexy"],
+html[data-ff-global="1"][data-ff-rule-yt-video-sidebar="1"]
+  div.related-items-container {
   display: none !important;
 }
 
