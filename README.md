@@ -3,6 +3,8 @@
 [![Formatting passes](https://img.shields.io/github/actions/workflow/status/Asterohobit/focusfilter/format.yml?branch=main&label=Format)](https://github.com/Asterohobit/focusfilter/actions/workflows/format.yml)
 [![Linting passes](https://img.shields.io/github/actions/workflow/status/Asterohobit/focusfilter/lint.yml?branch=main&label=Linting)](https://github.com/Asterohobit/focusfilter/actions/workflows/lint.yml)
 [![Latest release](https://img.shields.io/github/v/release/Asterohobit/focusfilter?label=Latest%20release)](https://github.com/Asterohobit/focusfilter/releases/latest)
+[![Firefox Add-on](https://img.shields.io/badge/Firefox-Add--on-orange?logo=firefox)](https://addons.mozilla.org/en-US/firefox/addon/focus_filter)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue?logo=googlechrome)](https://chromewebstore.google.com/detail/focusfilter/fkppkjpkjkfiadbkmfplgjgaiolgooei)
 
 A Firefox/Chrome browser extension designed to block unwanted components from YouTube and Instagram.
 

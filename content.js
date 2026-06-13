@@ -4,9 +4,12 @@ const SITE_DEFS = {
       { id: "YT_SHORTS", defaultEnabled: true },
       { id: "YT_VIDEO_SIDEBAR", defaultEnabled: true },
       { id: "YT_HOMESCREEN", defaultEnabled: true },
+      { id: "YT_SUBSCRIPTIONS_HIDE", defaultEnabled: false },
+      { id: "YT_SUBSCRIPTIONS_FEED_HIDE", defaultEnabled: false },
       { id: "YT_VIDEO_ENDCARD", defaultEnabled: true },
       { id: "YT_SHORTS_NEXT_SHORT", defaultEnabled: false },
       { id: "YT_DISABLE_AUTOPLAY", defaultEnabled: true },
+      { id: "YT_COMMENTS_DISABLE", defaultEnabled: false },
       { id: "GRAYSCALE", defaultEnabled: false },
     ],
     ruleDefs: [
@@ -30,6 +33,17 @@ const SITE_DEFS = {
       {
         id: "yt-shorts-next-short",
         keys: ["YT_SHORTS_NEXT_SHORT"],
+        mode: "any",
+      },
+      { id: "yt-comments-disable", keys: ["YT_COMMENTS_DISABLE"], mode: "any" },
+      {
+        id: "yt-subscriptions-hide",
+        keys: ["YT_SUBSCRIPTIONS_HIDE"],
+        mode: "any",
+      },
+      {
+        id: "yt-subscriptions-feed-hide",
+        keys: ["YT_SUBSCRIPTIONS_HIDE", "YT_SUBSCRIPTIONS_FEED_HIDE"],
         mode: "any",
       },
     ],
@@ -63,6 +77,7 @@ const SITE_DEFS = {
 
 const SITE_DEFAULT_ID = "youtube";
 const INLINE_HIDE_ATTR = "data-ff-inline-hidden";
+const ENDCARD_HIDE_ATTR = "data-ff-endcard-hidden";
 const CUSTOM_RULES_STYLE_ID = "ff-custom-rules-style";
 const GRAYSCALE_STYLE_ID = "ff-grayscale-style";
 const SETTINGS_VERSION_KEY = "settingsVersion";
@@ -319,6 +334,24 @@ function disableDesktopAutoplay(root) {
   });
 }
 
+// Hides the in-video end-screen recommendation cards that appear while the
+// video is still playing. Hide the .ytp-ce-element div that holds the <a>.
+function hideEndCardElements(root) {
+  eachMatch(root, "a.ytp-ce-covering-overlay", (overlay) => {
+    const card = overlay.closest(".ytp-ce-element") || overlay.parentElement;
+    if (!card || card.hasAttribute(ENDCARD_HIDE_ATTR)) return;
+    card.setAttribute(ENDCARD_HIDE_ATTR, "1");
+    card.style.display = "none";
+  });
+}
+
+function restoreEndCardElements() {
+  document.querySelectorAll(`[${ENDCARD_HIDE_ATTR}]`).forEach((el) => {
+    el.removeAttribute(ENDCARD_HIDE_ATTR);
+    el.style.display = "";
+  });
+}
+
 function restoreInlineHiddenElements() {
   document.querySelectorAll(`[${INLINE_HIDE_ATTR}]`).forEach((el) => {
     el.removeAttribute(INLINE_HIDE_ATTR);
@@ -339,6 +372,14 @@ function shouldRunDisableAutoplay() {
     currentSiteId === "youtube" &&
     state.globalEnabled &&
     isFeatureEnabled("YT_DISABLE_AUTOPLAY")
+  );
+}
+
+function shouldRunHideEndCards() {
+  return (
+    currentSiteId === "youtube" &&
+    state.globalEnabled &&
+    isFeatureEnabled("YT_VIDEO_ENDCARD")
   );
 }
 
@@ -363,6 +404,14 @@ function applyDynamicRules(roots) {
     });
   }
 
+  if (shouldRunHideEndCards()) {
+    targets.forEach((root) => {
+      hideEndCardElements(root);
+    });
+  } else {
+    restoreEndCardElements();
+  }
+
   if (!shouldRunDynamicShortsCleanup()) {
     restoreInlineHiddenElements();
   }
@@ -370,7 +419,9 @@ function applyDynamicRules(roots) {
 
 function updateObserverState() {
   const shouldRun =
-    shouldRunDynamicShortsCleanup() || shouldRunDisableAutoplay();
+    shouldRunDynamicShortsCleanup() ||
+    shouldRunDisableAutoplay() ||
+    shouldRunHideEndCards();
   if (!shouldRun && isObserverRunning) {
     observer.disconnect();
     isObserverRunning = false;
