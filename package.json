@@ -11,8 +11,8 @@
     "check": "npm run format:check && npm run lint && npm run lint:ext"
   },
   "devDependencies": {
-    "@eslint/js": "^10.5.0",
-    "eslint": "^10.0.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
     "prettier": "^3.8.4",
     "web-ext": "^10.4.0"
   }
