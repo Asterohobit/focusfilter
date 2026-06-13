@@ -6,6 +6,7 @@ const SITE_DEFS = {
       { id: "YT_HOMESCREEN", defaultEnabled: true },
       { id: "YT_VIDEO_ENDCARD", defaultEnabled: true },
       { id: "YT_SHORTS_NEXT_SHORT", defaultEnabled: false },
+      { id: "YT_DISABLE_AUTOPLAY", defaultEnabled: true },
       { id: "GRAYSCALE", defaultEnabled: false },
     ],
     ruleDefs: [
@@ -21,6 +22,7 @@ const SITE_DEFS = {
       { id: "yt-home-feed", keys: ["YT_HOMESCREEN"], mode: "any" },
       { id: "yt-watch-endscreen", keys: ["YT_VIDEO_ENDCARD"], mode: "any" },
       { id: "yt-video-sidebar", keys: ["YT_VIDEO_SIDEBAR"], mode: "any" },
+      { id: "yt-disable-autoplay", keys: ["YT_DISABLE_AUTOPLAY"], mode: "any" },
       { id: "yt-channel-shorts-tab", keys: ["YT_SHORTS"], mode: "any" },
       { id: "yt-channel-shorts-grid", keys: ["YT_SHORTS"], mode: "any" },
       { id: "yt-channel-shorts-shelf", keys: ["YT_SHORTS"], mode: "any" },
@@ -128,8 +130,32 @@ function getCurrentSiteId() {
   return SITE_DEFAULT_ID;
 }
 
-const observer = new MutationObserver(() => {
-  applyDynamicRules();
+// Collects element nodes added since the last animation frame so dynamic
+// rules only scan freshly-inserted subtrees instead of the whole document.
+let pendingRoots = new Set();
+let pendingFrame = 0;
+
+function flushPendingRoots() {
+  pendingFrame = 0;
+  if (!pendingRoots.size) return;
+  const roots = Array.from(pendingRoots);
+  pendingRoots.clear();
+  applyDynamicRules(roots);
+}
+
+// Throttled to at most one run per animation frame. YouTube fires many DOM
+// mutations per second, so we coalesce them and process only the added nodes
+// instead of re-scanning the whole document on every mutation batch.
+const observer = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    mutation.addedNodes.forEach((node) => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        pendingRoots.add(node);
+      }
+    });
+  }
+  if (pendingFrame || !pendingRoots.size) return;
+  pendingFrame = requestAnimationFrame(flushPendingRoots);
 });
 
 let isObserverRunning = false;
@@ -228,9 +254,22 @@ function applyGrayscaleStyle() {
   (document.head || document.documentElement).appendChild(style);
 }
 
+// Runs fn for every element matching selector within root, including root
+// itself. When root is the document, falls back to a full-document scan; for
+// an added subtree it checks the node and its descendants only.
+function eachMatch(root, selector, fn) {
+  if (root === document) {
+    document.querySelectorAll(selector).forEach(fn);
+    return;
+  }
+  if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
+  if (root.matches(selector)) fn(root);
+  root.querySelectorAll(selector).forEach(fn);
+}
+
 // Hides Shorts elements that may not be covered by CSS rules, based on their aria-label. This is necessary because some Shorts elements are rendered in a way that makes them difficult to target with CSS alone. By using an inline style, we can ensure they are hidden regardless of their position in the DOM or how they are rendered.
-function hideShortsByAriaLabel() {
-  document.querySelectorAll('[aria-label*="Shorts"]').forEach((el) => {
+function hideShortsByAriaLabel(root) {
+  eachMatch(root, '[aria-label*="Shorts"]', (el) => {
     const container = el.closest("ytd-rich-item-renderer");
     if (!container || container.hasAttribute(INLINE_HIDE_ATTR)) return;
     container.setAttribute(INLINE_HIDE_ATTR, "1");
@@ -239,8 +278,8 @@ function hideShortsByAriaLabel() {
 }
 
 // Hides the Shorts search chip by checking the chip label text instead of the tag name.
-function hideShortsChipByLabel() {
-  document.querySelectorAll("yt-chip-cloud-chip-renderer").forEach((chip) => {
+function hideShortsChipByLabel(root) {
+  eachMatch(root, "yt-chip-cloud-chip-renderer", (chip) => {
     if (chip.hasAttribute(INLINE_HIDE_ATTR)) return;
 
     const label = chip.textContent ? chip.textContent.trim() : "";
@@ -252,8 +291,8 @@ function hideShortsChipByLabel() {
 }
 
 // Hides the Shorts search filter chip by matching the visible label text.
-function hideSearchFilterShortsByLabel() {
-  document.querySelectorAll("ytd-search-filter-renderer").forEach((filter) => {
+function hideSearchFilterShortsByLabel(root) {
+  eachMatch(root, "ytd-search-filter-renderer", (filter) => {
     if (filter.hasAttribute(INLINE_HIDE_ATTR)) return;
 
     const label = filter.textContent ? filter.textContent.trim() : "";
@@ -261,6 +300,22 @@ function hideSearchFilterShortsByLabel() {
 
     filter.setAttribute(INLINE_HIDE_ATTR, "1");
     filter.style.display = "none";
+  });
+}
+
+function disableMobileAutoplay(root) {
+  eachMatch(root, ".ytm-autonav-toggle-button-container", (button) => {
+    const isPressed = button.getAttribute("aria-pressed") === "true";
+    if (!isPressed) return;
+    button.click();
+  });
+}
+
+function disableDesktopAutoplay(root) {
+  eachMatch(root, ".ytp-autonav-toggle-button", (el) => {
+    const isChecked = el.getAttribute("aria-checked") === "true";
+    if (!isChecked) return;
+    el.click();
   });
 }
 
@@ -279,21 +334,51 @@ function shouldRunDynamicShortsCleanup() {
   );
 }
 
-function applyDynamicRules() {
+function shouldRunDisableAutoplay() {
+  return (
+    currentSiteId === "youtube" &&
+    state.globalEnabled &&
+    isFeatureEnabled("YT_DISABLE_AUTOPLAY")
+  );
+}
+
+// Applies the JS-based dynamic rules. When called without roots (init, state
+// change, navigation) it scans the whole document; the throttled observer
+// passes the set of newly-added nodes so scans stay scoped to what changed.
+function applyDynamicRules(roots) {
+  const targets = roots && roots.length ? roots : [document];
+
   if (shouldRunDynamicShortsCleanup()) {
-    hideShortsByAriaLabel();
-    hideShortsChipByLabel();
-    hideSearchFilterShortsByLabel();
-    return;
+    targets.forEach((root) => {
+      hideShortsByAriaLabel(root);
+      hideShortsChipByLabel(root);
+      hideSearchFilterShortsByLabel(root);
+    });
   }
-  restoreInlineHiddenElements();
+
+  if (shouldRunDisableAutoplay()) {
+    targets.forEach((root) => {
+      disableMobileAutoplay(root);
+      disableDesktopAutoplay(root);
+    });
+  }
+
+  if (!shouldRunDynamicShortsCleanup()) {
+    restoreInlineHiddenElements();
+  }
 }
 
 function updateObserverState() {
-  const shouldRun = shouldRunDynamicShortsCleanup();
+  const shouldRun =
+    shouldRunDynamicShortsCleanup() || shouldRunDisableAutoplay();
   if (!shouldRun && isObserverRunning) {
     observer.disconnect();
     isObserverRunning = false;
+    if (pendingFrame) {
+      cancelAnimationFrame(pendingFrame);
+      pendingFrame = 0;
+    }
+    pendingRoots.clear();
     return;
   }
   if (shouldRun && !isObserverRunning) {
