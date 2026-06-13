@@ -1,7 +1,7 @@
 {
   "name": "focusfilter",
   "private": true,
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "Browser extension for blocking unwanted components from YouTube and Instagram.",
   "scripts": {
     "format:check": "prettier --check . --ignore-unknown",

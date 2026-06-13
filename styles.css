@@ -69,6 +69,25 @@ html[data-ff-global="1"][data-ff-rule-yt-shorts-next-short="1"]
   display: none !important;
 }
 
+/* Hide the comments section on the video page */
+html[data-ff-global="1"][data-ff-rule-yt-comments-disable="1"] ytd-comments {
+  display: none !important;
+}
+
+/* Hide all subscription related elements */
+html[data-ff-global="1"][data-ff-rule-yt-subscriptions-hide="1"]
+  ytd-guide-section-renderer[section-identifier="subscriptions"],
+html[data-ff-global="1"][data-ff-rule-yt-subscriptions-hide="1"]
+  ytd-channel-renderer[subscribed] {
+  display: none !important;
+}
+
+/* Hide the subscriptions feed */
+html[data-ff-global="1"][data-ff-rule-yt-subscriptions-feed-hide="1"]
+  ytd-two-column-browse-results-renderer[page-subtype="subscriptions"] {
+  display: none !important;
+}
+
 /* --- Instagram rules --- */
 /* Hide ads in the Instagram home feed */
 html[data-ff-global="1"][data-ff-rule-insta-hide-ads-homefeed="1"]

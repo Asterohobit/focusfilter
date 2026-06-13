@@ -23,6 +23,18 @@ const SITE_DEFS = [
         defaultEnabled: true,
       },
       {
+        id: "YT_SUBSCRIPTIONS_HIDE",
+        label: "Hide subscriptions",
+        description: "Remove all subscription related elements",
+        defaultEnabled: false,
+      },
+      {
+        id: "YT_SUBSCRIPTIONS_FEED_HIDE",
+        label: "Hide subscriptions feed",
+        description: "Only subscriptions feed",
+        defaultEnabled: false,
+      },
+      {
         id: "YT_VIDEO_ENDCARD",
         label: "Hide recommendations on video end screen",
         description: "Recommended videos at the end of a video",
@@ -38,6 +50,12 @@ const SITE_DEFS = [
         id: "YT_DISABLE_AUTOPLAY",
         label: "Disable autoplay",
         description: "Prevent automatically playing next video",
+        defaultEnabled: false,
+      },
+      {
+        id: "YT_COMMENTS_DISABLE",
+        label: "Hide comments",
+        description: "Comments section on the watch page",
         defaultEnabled: false,
       },
       {
