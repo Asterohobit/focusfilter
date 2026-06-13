@@ -29,9 +29,9 @@ const SITE_DEFS = [
         defaultEnabled: false,
       },
       {
-        id: "YT_SHORTS_NEXT_REEL",
-        label: "Disable Reell scrolling",
-        description: "Hide the subsequent Reells",
+        id: "YT_SHORTS_NEXT_SHORT",
+        label: "Disable Shorts scrolling",
+        description: "Hide the subsequent Shorts",
         defaultEnabled: false,
       },
       {
@@ -343,7 +343,6 @@ function renderState() {
     if (!input || !status) return;
 
     input.checked = Boolean(getSelectedSiteFeatures()[feature.id]);
-    input.disabled = !state.globalEnabled;
   });
 }
 

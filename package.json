@@ -1,11 +1,11 @@
 {
   "name": "focusfilter",
   "private": true,
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Browser extension for blocking unwanted components from YouTube and Instagram.",
   "scripts": {
     "format:check": "prettier --check . --ignore-unknown",
-    "format:fix": "prettier --write . --ignore-unknown",
+    "format:fix": "prettier --write . --ignore-unknown | grep -v \"(unchanged)\" || echo No changes",
     "lint": "eslint content.js popup.js",
     "lint:ext": "web-ext lint --source-dir . --no-input",
     "check": "npm run format:check && npm run lint && npm run lint:ext"
